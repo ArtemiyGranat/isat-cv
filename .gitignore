@@ -1,6 +1,7 @@
 .*
 !.gitignore
 !.python-version
+!.pre-commit-config.yaml
 
 requirements*.lock
 
