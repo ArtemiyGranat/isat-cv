@@ -1,11 +1,15 @@
 [project]
-name = "isat"
+name = "ssu-isat"
 version = "0.1.0"
-description = "Add your description here"
+description = "Educational project for SSU ISaT course"
 authors = [
     { name = "Artemiy Granat", email = "artemiigranat@gmail.com" }
 ]
-dependencies = []
+dependencies = [
+    "fastapi>=0.109.0",
+    "pydantic>=2.5.3",
+    "uvicorn>=0.25.0",
+]
 readme = "README.md"
 requires-python = ">= 3.8"
 
@@ -15,10 +19,22 @@ build-backend = "hatchling.build"
 
 [tool.rye]
 managed = true
-dev-dependencies = []
+dev-dependencies = [
+    "black>=23.12.1",
+    "isort>=5.13.2",
+    "pre-commit>=3.5.0",
+]
 
 [tool.hatch.metadata]
 allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
 packages=["backend/src"]
+
+[tool.black]
+line-length = 79
+target-version = ['py311']
+
+[tool.isort]
+profile = "black"
+line_length = 79

@@ -1,3 +1,8 @@
 # isat
 
-Describe your project here.
+## Usage
+
+```
+rye sync
+rye run uvicorn --app-dir=backend/src main:app
+```
