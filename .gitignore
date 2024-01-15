@@ -1,8 +1,4 @@
-.*
-!.gitignore
-!.python-version
-!.pre-commit-config.yaml
-
+.venv
 requirements*.lock
 
 __pycache__/
