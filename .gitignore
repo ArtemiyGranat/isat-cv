@@ -1,4 +1,9 @@
-# python generated files
+.*
+!.gitignore
+!.python-version
+
+requirements*.lock
+
 __pycache__/
 *.py[oc]
 build/
@@ -6,5 +11,4 @@ dist/
 wheels/
 *.egg-info
 
-# venv
-.venv
+
