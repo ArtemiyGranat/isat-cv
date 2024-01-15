@@ -1,9 +1,9 @@
 repos:
--   repo: https://github.com/ambv/black
-    rev: 23.12.1
+-   repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.13
     hooks:
-    - id: black
-      language_version: python3.11
+    - id: ruff
+    - id: ruff-format
 -   repo: https://github.com/pycqa/isort
     rev: 5.13.2
     hooks:
