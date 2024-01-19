@@ -8,11 +8,12 @@ logger = logging.getLogger("app")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[], # TODO
+    allow_origins=[],  # TODO
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 @app.get("/", summary="Hello, world")
 def hello():
