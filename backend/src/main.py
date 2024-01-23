@@ -1,9 +1,18 @@
 import logging
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI()
+from shared.logger import configure_logging
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    configure_logging()
+
+
+app = FastAPI(lifespan=lifespan)
 logger = logging.getLogger("app")
 
 app.add_middleware(
