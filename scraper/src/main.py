@@ -38,11 +38,13 @@ def scrape(amount: int) -> None:
                     return
 
                 url = urljoin(ctx.config.start_url, image["src"])
-                if os.path.splitext(url) == "":
-                    url = url + ".jpg"
                 img_name = os.path.join(
                     ctx.config.img_dir, os.path.basename(url)
                 )
+
+                if os.path.splitext(img_name)[-1] == "":
+                    img_name = img_name + ".jpg"
+
                 if os.path.exists(img_name):
                     logger.info(f"{url} already exists")
                     continue
