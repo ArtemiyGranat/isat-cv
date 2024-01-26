@@ -1,11 +1,13 @@
 import logging
 import os
+import time
 from contextlib import asynccontextmanager
-from urllib.parse import urljoin
 
+import httpx
 from bs4 import BeautifulSoup
 from context import ctx
 from fastapi import FastAPI
+from process import process_image
 
 from shared.logger import configure_logging
 
@@ -27,37 +29,25 @@ def scrape(amount: int) -> None:
     scraped = 0
     page = 1
     while scraped < amount and page < ctx.config.total_pages:
-        response = ctx.http_client.get(f"{ctx.config.start_url}{page}")
-        if response.status_code == 200:
-            soup = BeautifulSoup(response.text, "html.parser")
-            images = soup.select(ctx.config.css_selector)
+        try:
+            response = ctx.http_client.get(f"{ctx.config.start_url}{page}")
+            if response.status_code == 200:
+                soup = BeautifulSoup(response.text, "html.parser")
 
-            for image in images:
-                if scraped == amount:
-                    logger.info(f"Scraped {amount} images")
-                    return
+                for image in soup.select(ctx.config.css_selector):
+                    if scraped == amount:
+                        logger.info(f"Scraped {amount} images")
+                        return
 
-                url = urljoin(ctx.config.start_url, image["src"])
-                img_name = os.path.join(
-                    ctx.config.img_dir, os.path.basename(url)
-                )
+                    status_code = process_image(image)
+                    if status_code == 200:
+                        scraped += 1
 
-                if os.path.splitext(img_name)[-1] == "":
-                    img_name = img_name + ".jpg"
-
-                if os.path.exists(img_name):
-                    logger.info(f"{url} already exists")
-                    continue
-
-                image_response = ctx.http_client.get(url)
-
-                if image_response.status_code == 200:
-                    with open(img_name, "wb") as f:
-                        f.write(image_response.content)
-                    scraped += 1
-                else:
-                    logger.error(f"Failed to download image from {url}")
-        page += 1
+                    time.sleep(0.1)
+            time.sleep(0.1)
+            page += 1
+        except httpx.TimeoutException:
+            time.sleep(1)
 
 
 # TODO
