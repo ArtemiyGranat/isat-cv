@@ -7,7 +7,7 @@ import httpx
 from bs4 import BeautifulSoup
 from context import ctx
 from fastapi import FastAPI
-from process import process_image
+from utils import ScraperInfo, process_image
 
 from shared.logger import configure_logging
 
@@ -26,26 +26,25 @@ logger = logging.getLogger("app")
 def scrape(amount: int) -> None:
     os.makedirs(ctx.config.img_dir, exist_ok=True)
 
-    scraped = 0
+    info = ScraperInfo()
     page = 1
-    while scraped < amount and page < ctx.config.total_pages:
+    while info.images_scraped < amount and page < ctx.config.total_pages:
         try:
             response = ctx.http_client.get(f"{ctx.config.start_url}{page}")
             if response.status_code == 200:
                 soup = BeautifulSoup(response.text, "html.parser")
 
                 for image in soup.select(ctx.config.css_selector):
-                    if scraped == amount:
+                    if info.images_scraped == amount:
                         logger.info(f"Scraped {amount} images")
                         return
 
-                    status_code = process_image(image)
-                    if status_code == 200:
-                        scraped += 1
-
+                    process_image(image, info)
+                    # tenacity
                     time.sleep(0.1)
             time.sleep(0.1)
             page += 1
+        # retry
         except httpx.TimeoutException:
             time.sleep(1)
 
