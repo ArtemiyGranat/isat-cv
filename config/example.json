@@ -31,8 +31,13 @@
         }
     },
     "scraper": {
-        "start_url": "https://aboba.com",
+        "start_url": "https://aboba.com/?page=",
         "save_dir": "scraper/img",
-        "css_selector": "img"
+        "css_selector": "img",
+        "total_pages": 1
+    },
+    "sqlite_creds": {
+        "driver": "sqlite+aiosqlite",
+        "db_name": "db/images"
     }
 }

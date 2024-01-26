@@ -1,16 +1,15 @@
 import logging
 import os
-from dataclasses import dataclass
 from urllib.parse import urljoin
 
 from bs4 import Tag
 from context import ctx
+from pydantic import BaseModel
 
 logger = logging.getLogger("app")
 
 
-@dataclass
-class ScraperInfo:
+class ScraperInfo(BaseModel):
     images_scraped: int
 
 

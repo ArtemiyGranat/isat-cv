@@ -2,6 +2,7 @@ import logging
 import os
 import time
 from contextlib import asynccontextmanager
+from uuid import uuid4
 
 import httpx
 from bs4 import BeautifulSoup
@@ -10,12 +11,19 @@ from fastapi import FastAPI
 from utils import ScraperInfo, process_image
 
 from shared.logger import configure_logging
+from shared.models import Image
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     configure_logging()
+    await ctx.init_db()
+    await ctx.image_repo.create_table()
+    await ctx.image_repo.add(Image(id=uuid4(), path="a", hash="b"))
+    await ctx.image_repo.get_many()
     yield
+    await ctx.dispose_db()
+    await ctx.close_client()
 
 
 app = FastAPI(lifespan=lifespan)
