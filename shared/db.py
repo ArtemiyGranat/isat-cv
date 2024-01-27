@@ -89,7 +89,6 @@ class AbstractRepository:
 
 class SqliteRepository(AbstractRepository):
     async def create_table(self):
-        await self._db.execute(query="SELECT load_extension('uuid.c');")
         await self._db.execute(
             query=f"CREATE TABLE IF NOT EXISTS {self._table_name} (id TEXT, path TEXT, hash TEXT);"
         )

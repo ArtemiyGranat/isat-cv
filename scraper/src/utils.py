@@ -1,10 +1,12 @@
 import logging
-import os
-from urllib.parse import urljoin
+from uuid import uuid4
 
 from bs4 import Tag
 from context import ctx
 from pydantic import BaseModel
+from tenacity import retry, stop_after_attempt
+
+from shared.entities import Image
 
 logger = logging.getLogger("app")
 
@@ -13,22 +15,29 @@ class ScraperInfo(BaseModel):
     images_scraped: int
 
 
-def process_image(image: Tag, info: ScraperInfo) -> int:
-    url = urljoin(ctx.config.start_url, image["src"])
-    img_name = os.path.join(ctx.config.img_dir, os.path.basename(url))
+@retry(stop=stop_after_attempt(7))
+async def get_with_retry(url: str):
+    return await ctx.http_client.get(url)
 
-    if os.path.splitext(img_name)[-1] == "":
-        img_name = img_name + ".jpg"
 
-    if os.path.exists(img_name):
-        logger.info(f"{url} already exists")
+async def process_image(image: Tag, info: ScraperInfo) -> int:
+    id = str(uuid4())
+    path = f"{ctx.config.img_dir}/{id}.jpg"
+
+    if (
+        await ctx.image_repo.get_one(field="path", value=image["src"])
+        is not None
+    ):
+        logger.info(f"{image['src']} already exists")
         return
 
-    image_response = ctx.http_client.get(url)
+    response = await get_with_retry(image["src"])
+    if response.status_code != 200:
+        logger.error(f"Failed to download image from {image['src']}")
+        return
 
-    if image_response.status_code == 200:
-        with open(img_name, "wb") as f:
-            f.write(image_response.content)
-        info.images_scraped += 1
-    else:
-        logger.error(f"Failed to download image from {url}")
+    with open(path, "wb") as f:
+        f.write(response.content)
+
+    await ctx.image_repo.add(Image(id=id, path=image["src"], hash=""))
+    info.images_scraped += 1

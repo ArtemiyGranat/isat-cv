@@ -1,11 +1,10 @@
 from typing import ClassVar
-from uuid import UUID
 
 from shared.db import Entity
 
 
 class Image(Entity):
-    id: UUID
+    id: str
     path: str
     hash: str
 
