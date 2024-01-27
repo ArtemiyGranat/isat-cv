@@ -1,5 +1,6 @@
 import io
 import logging
+import time
 from uuid import uuid4
 
 from bs4 import Tag
@@ -20,7 +21,9 @@ class ScraperInfo(BaseModel):
 
 @retry(stop=stop_after_attempt(7), wait=wait_exponential(multiplier=1, max=60))
 async def get_with_retry(url: str):
-    return await ctx.http_client.get(url)
+    response = await ctx.http_client.get(url)
+    time.sleep(0.25)
+    return response
 
 
 async def process_image(image: Tag, info: ScraperInfo) -> int:
