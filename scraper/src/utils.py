@@ -7,7 +7,7 @@ from context import ctx
 from imagehash import phash
 from PIL import Image
 from pydantic import BaseModel
-from tenacity import retry, stop_after_attempt
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 import shared.entities as entities
 
@@ -18,7 +18,7 @@ class ScraperInfo(BaseModel):
     images_scraped: int
 
 
-@retry(stop=stop_after_attempt(7))
+@retry(stop=stop_after_attempt(7), wait=wait_exponential(multiplier=1, max=60))
 async def get_with_retry(url: str):
     return await ctx.http_client.get(url)
 
