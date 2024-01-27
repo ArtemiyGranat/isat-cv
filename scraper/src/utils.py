@@ -21,9 +21,6 @@ async def get_with_retry(url: str):
 
 
 async def process_image(image: Tag, info: ScraperInfo) -> int:
-    id = str(uuid4())
-    path = f"{ctx.config.img_dir}/{id}.jpg"
-
     if (
         await ctx.image_repo.get_one(field="path", value=image["src"])
         is not None
@@ -36,6 +33,8 @@ async def process_image(image: Tag, info: ScraperInfo) -> int:
         logger.error(f"Failed to download image from {image['src']}")
         return
 
+    id = str(uuid4())
+    path = f"{ctx.config.img_dir}/{id}.jpg"
     with open(path, "wb") as f:
         f.write(response.content)
 
