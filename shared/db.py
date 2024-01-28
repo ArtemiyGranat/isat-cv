@@ -23,7 +23,7 @@ class AbstractRepository:
     def _get_query_parameters(self, dump):
         keys = list(dump.keys())
         columns = ",".join(keys)
-        placeholders = ",".join(map(lambda x: f":{x}", keys))
+        placeholders = ",".join(f":{key}" for key in keys)
         return columns, placeholders
 
     async def add(
@@ -39,7 +39,6 @@ class AbstractRepository:
         columns, placeholders = self._get_query_parameters(dumps[0])
 
         query = f"INSERT INTO {self._table_name}({columns}) VALUES ({placeholders})"
-
         if ignore_conflict:
             query += " ON CONFLICT DO NOTHING"
 
@@ -47,33 +46,32 @@ class AbstractRepository:
         logger.debug(f"Sent query: {query}")
 
     async def get_one(self, field, value) -> Optional[Entity]:
-        query = f"SELECT * FROM {self._table_name}"
-        query += f" WHERE {field} = :{field}"
+        query = f"SELECT * FROM {self._table_name} WHERE {field} = :{field}"
+
         row = await self._db.fetch_one(query=query, values={field: value})
         logger.debug(f"Sent query: {query}")
 
-        if not row:
-            return None
-
-        return TypeAdapter(self._entity).validate_python(dict(row._mapping))
+        return (
+            TypeAdapter(self._entity).validate_python(dict(row._mapping))
+            if row
+            else None
+        )
 
     async def get_many(self, field=None, value=None) -> List[Entity]:
         query = f"SELECT * FROM {self._table_name}"
+
         if field is not None:
             query += f" WHERE {field} = :{field}"
             rows = await self._db.fetch_all(query=query, values={field: value})
         else:
             rows = await self._db.fetch_all(query=query)
+
         logger.debug(f"Sent query: {query}")
 
-        mapped = map(
-            lambda row: TypeAdapter(self._entity).validate_python(
-                dict(row._mapping)
-            ),
-            rows,
-        )
-
-        return list(mapped)
+        return [
+            TypeAdapter(self._entity).validate_python(dict(row._mapping))
+            for row in rows
+        ]
 
 
 class SqliteRepository(AbstractRepository):
