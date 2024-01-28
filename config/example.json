@@ -32,7 +32,7 @@
     },
     "scraper": {
         "start_url": "https://aboba.com/?page=",
-        "save_dir": "scraper/img",
+        "img_dir": "scraper/img",
         "css_selector": "img",
         "total_pages": 1
     },

@@ -17,8 +17,8 @@ async def lifespan(_: FastAPI):
     await ctx.init_db()
     await ctx.image_repo.create_table()
     yield
-    await ctx.dispose_db()
     await ctx.close_client()
+    await ctx.dispose_db()
 
 
 app = FastAPI(lifespan=lifespan)
@@ -33,18 +33,15 @@ async def scrape(page: int, amount: int) -> None:
     while info.images_scraped < amount and page < ctx.config.total_pages:
         try:
             response = await get_with_retry(f"{ctx.config.start_url}{page}")
-
             page += 1
             if response.status_code != 200:
                 continue
 
             soup = BeautifulSoup(response.text, "html.parser")
-
             for image in soup.select(ctx.config.css_selector):
                 if info.images_scraped == amount:
                     logger.info(f"Scraped {amount} images")
                     return
-
                 await process_image(image, info)
         except RetryError:
             raise HTTPException(
