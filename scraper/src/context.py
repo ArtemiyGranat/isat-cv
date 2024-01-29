@@ -1,3 +1,5 @@
+import os
+
 import httpx
 from databases import Database
 
@@ -11,6 +13,10 @@ class Context:
         shared_resources = SharedResources("config/config.json")
 
         self.config = shared_resources.scraper
+
+        if not os.path.exists(self.config.img_dir):
+            os.makedirs(self.config.img_dir)
+
         self.sqlite = Database(
             gen_sqlite_address(shared_resources.sqlite_creds)
         )

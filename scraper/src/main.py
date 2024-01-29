@@ -1,12 +1,10 @@
 import logging
-import os
 from contextlib import asynccontextmanager
 
-from bs4 import BeautifulSoup
 from context import ctx
 from fastapi import FastAPI, HTTPException
 from tenacity import RetryError
-from utils import ScraperInfo, get_with_retry, process_image
+from utils import ScraperInfo, get_with_retry, process_page_content
 
 from shared.logger import configure_logging
 
@@ -27,8 +25,6 @@ logger = logging.getLogger("app")
 
 @app.post("/scrape/{page}/{amount}", summary="Scrape certain amount of images")
 async def scrape(page: int, amount: int) -> None:
-    os.makedirs(ctx.config.img_dir, exist_ok=True)
-
     info = ScraperInfo(images_scraped=0)
     while info.images_scraped < amount and page < ctx.config.total_pages:
         try:
@@ -37,17 +33,14 @@ async def scrape(page: int, amount: int) -> None:
             if response.status_code != 200:
                 continue
 
-            soup = BeautifulSoup(response.text, "html.parser")
-            for image in soup.select(ctx.config.css_selector):
-                if info.images_scraped == amount:
-                    logger.info(f"Scraped {amount} images")
-                    return
-                await process_image(image, info)
+            process_page_content(response.text, info, amount)
         except RetryError:
             raise HTTPException(
                 status_code=524,
                 detail=f"Failed to scrape images from page {page}, try again later",
             )
+
+    logger.info(f"Scraped {amount} images")
 
 
 # TODO

@@ -3,7 +3,7 @@ import logging
 import time
 from uuid import uuid4
 
-from bs4 import Tag
+from bs4 import BeautifulSoup, Tag
 from context import ctx
 from imagehash import phash
 from PIL import Image
@@ -53,3 +53,14 @@ async def process_image(image: Tag, info: ScraperInfo) -> int:
         entities.Image(id=id, path=image["src"], hash=hash)
     )
     info.images_scraped += 1
+
+
+async def process_page_content(
+    response_text: str, info: ScraperInfo, amount: int
+) -> None:
+    soup = BeautifulSoup(response_text, "html.parser")
+
+    for image in soup.select(ctx.config.css_selector):
+        if info.images_scraped == amount:
+            return
+        await process_image(image, info)
