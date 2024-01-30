@@ -23,7 +23,11 @@ app = FastAPI(lifespan=lifespan)
 logger = logging.getLogger("app")
 
 
-@app.post("/scrape/{page}/{amount}", summary="Scrape certain amount of images")
+@app.post(
+    "/scrape/{page}/{amount}",
+    summary="Scrape certain amount of images",
+    status_code=204,
+)
 async def scrape(page: int, amount: int) -> None:
     info = ScraperInfo(images_scraped=0)
     while info.images_scraped < amount and page < ctx.config.total_pages:
@@ -39,11 +43,4 @@ async def scrape(page: int, amount: int) -> None:
                 status_code=524,
                 detail=f"Failed to scrape images from page {page}, try again later",
             )
-
     logger.info(f"Scraped {amount} images")
-
-
-# TODO
-@app.get("/images/{amount}", summary="Get certain amount of images")
-def get_images(amount: int) -> int:
-    return amount
