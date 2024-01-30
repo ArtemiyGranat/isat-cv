@@ -50,7 +50,7 @@ async def process_image(image: Tag, info: ScraperInfo) -> int:
         f.write(response.content)
 
     await ctx.image_repo.add(
-        entities.Image(id=id, path=image["src"], hash=hash)
+        entities.Image(id=id, path=image["src"], hash=hash, processed=0)
     )
     info.images_scraped += 1
 

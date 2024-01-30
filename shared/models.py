@@ -15,3 +15,4 @@ class Image(BaseModel):
     id: UUID
     path: str
     hash: str
+    processed: int  # bool but SQLite moment

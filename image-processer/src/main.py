@@ -1,9 +1,11 @@
 import asyncio
 import logging
+from typing import List
 from uuid import UUID
 
 from context import ctx
 
+import shared.models as models
 from shared.logger import configure_logging
 
 logger = logging.getLogger("app")
@@ -14,7 +16,11 @@ def process_image(uuid: UUID):
 
 
 def process_images():
-    pass
+    images: List[models.Image] = ctx.image_repo.get_many(
+        field="processed", value=0
+    )
+    for image in images:
+        process_image(image.id)
 
 
 async def main():
