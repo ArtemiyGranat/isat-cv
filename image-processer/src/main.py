@@ -2,7 +2,6 @@ import asyncio
 import logging
 import os
 from typing import List
-from uuid import UUID
 
 import rembg
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -42,20 +41,26 @@ class Context:
         )
 
 
-def process_image(ctx: Context, id: UUID):
-    orig_img = Image.open(f"{ctx.orig_img_dir}/{id}.jpg")
+async def process_image(ctx: Context, image: models.Image):
+    orig_img = Image.open(f"{ctx.orig_img_dir}/{image.id}.jpg")
     processed_img = rembg.remove(orig_img)
-    processed_img.save(f"{ctx.config.img_dir}/{id}.png")
+    processed_img.save(f"{ctx.config.img_dir}/{image.id}.png")
+    await ctx.image_repo.update(
+        entities.Image(
+            id=image.id, path=image.path, hash=image.path, processed=1
+        ),
+        ["processed"],
+    )
 
-    logger.info(f"Removed background: {ctx.orig_img_dir}/{id}.jpg")
+    logger.info(f"Removed background: {ctx.orig_img_dir}/{image.id}.jpg")
 
 
 async def process_images(ctx: Context):
     images: List[models.Image] = await ctx.image_repo.get_many(
-        # field="processed", value=0
+        field="processed", value=1
     )
     for image in images:
-        process_image(ctx, image.id)
+        await process_image(ctx, image)
 
 
 async def main():

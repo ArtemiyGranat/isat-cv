@@ -37,7 +37,7 @@ async def scrape(page: int, amount: int) -> None:
             if response.status_code != 200:
                 continue
 
-            process_page_content(response.text, info, amount)
+            await process_page_content(response.text, info, amount)
         except RetryError:
             raise HTTPException(
                 status_code=524,

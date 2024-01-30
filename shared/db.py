@@ -45,6 +45,18 @@ class AbstractRepository:
         await self._db.execute_many(query=query, values=dumps)
         logger.debug(f"Sent query: {query}")
 
+    async def update(self, entity: Entity, fields: List[str]):
+        dump = entity.model_dump()
+
+        pk = entity._pk
+        query_set = ",".join(f"{field} = :{field}" for field in fields)
+        query = f"UPDATE {self._table_name} SET {query_set} WHERE {pk} = :{pk}"
+
+        await self._db.execute(
+            query=query, values={k: dump[k] for k in fields} | {pk: dump[pk]}
+        )
+        logger.debug(f"Sent query: {query}")
+
     async def get_one(self, field, value) -> Optional[Entity]:
         query = f"SELECT * FROM {self._table_name} WHERE {field} = :{field}"
 
