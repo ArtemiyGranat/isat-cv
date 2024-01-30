@@ -57,7 +57,7 @@ async def process_image(ctx: Context, image: models.Image):
 
 async def process_images(ctx: Context):
     images: List[models.Image] = await ctx.image_repo.get_many(
-        field="processed", value=1
+        field="processed", value=0
     )
     for image in images:
         await process_image(ctx, image)
