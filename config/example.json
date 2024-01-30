@@ -41,6 +41,7 @@
         "db_name": "db/images"
     },
     "img_processer": {
-        "interval": 30
+        "interval": 30,
+        "img_dir": "processed_img"
     }
 }

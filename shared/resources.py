@@ -21,6 +21,7 @@ class ScraperSettings(BaseModel):
 
 class ImgProcesserSettings(BaseModel):
     interval: int
+    img_dir: str
 
 
 class SharedResources(JSONSettings):
