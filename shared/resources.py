@@ -19,6 +19,11 @@ class ScraperSettings(BaseModel):
     total_pages: int
 
 
+class ImgProcesserSettings(BaseModel):
+    interval: int
+
+
 class SharedResources(JSONSettings):
     sqlite_creds: DatabaseCredentials
     scraper: ScraperSettings
+    img_processer: ImgProcesserSettings

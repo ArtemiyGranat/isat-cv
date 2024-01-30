@@ -39,5 +39,8 @@
     "sqlite_creds": {
         "driver": "sqlite+aiosqlite",
         "db_name": "db/images"
+    },
+    "img_processer": {
+        "interval": 30
     }
 }
