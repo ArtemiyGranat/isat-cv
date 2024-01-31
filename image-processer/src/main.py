@@ -42,16 +42,16 @@ class Context:
 
 
 async def process_image(ctx: Context, image: models.Image):
-    orig_img = Image.open(f"{ctx.orig_img_dir}/{image.id}.jpg")
-    processed_img = rembg.remove(orig_img)
-    processed_img.save(f"{ctx.config.img_dir}/{image.id}.png")
+    with Image.open(f"{ctx.orig_img_dir}/{image.id}.jpg") as orig_img:
+        processed_img = rembg.remove(orig_img)
+        processed_img.save(f"{ctx.config.img_dir}/{image.id}.png")
+
     await ctx.image_repo.update(
-        entities.Image(
+        entity=entities.Image(
             id=image.id, path=image.path, hash=image.path, processed=1
         ),
-        ["processed"],
+        fields=["processed"],
     )
-
     logger.info(f"Removed background: {ctx.orig_img_dir}/{image.id}.jpg")
 
 
