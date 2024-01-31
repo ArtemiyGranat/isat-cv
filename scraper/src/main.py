@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 
 from context import ctx
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from tenacity import RetryError
 from utils import ScraperInfo, get_with_retry, process_page_content
 
@@ -21,6 +22,14 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 logger = logging.getLogger("app")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.post(
