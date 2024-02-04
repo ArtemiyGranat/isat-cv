@@ -44,6 +44,7 @@ async def scrape(page: int, amount: int) -> None:
             response = await get_with_retry(f"{ctx.config.start_url}{page}")
             page += 1
             if response.status_code != 200:
+                logger.info(f"Page {page} cannot be retrieved")
                 continue
 
             process_page_content(response.text, info, amount)
