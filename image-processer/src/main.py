@@ -77,7 +77,10 @@ async def main():
         await asyncio.Future()
     except (KeyboardInterrupt, SystemExit):
         pass
+    except Exception as e:
+        logger.error(f"An error occured: {e}")
     finally:
+        logger.info("The image processing service has been stopped")
         ctx.scheduler.shutdown()
         await ctx.dispose_db()
 
