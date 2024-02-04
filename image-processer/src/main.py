@@ -75,7 +75,7 @@ async def main():
     ctx.scheduler.start()
     try:
         await asyncio.Future()
-    except (KeyboardInterrupt, SystemExit):
+    except (KeyboardInterrupt, SystemExit, asyncio.exceptions.CancelledError):
         pass
     except Exception as e:
         logger.error(f"An error occured: {e}")
