@@ -5,7 +5,7 @@ from shared.db import Entity
 
 class Image(Entity):
     id: str
-    path: str
+    url: str
     hash: str
     processed: int  # bool but SQLite moment
 

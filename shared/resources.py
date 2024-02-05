@@ -17,6 +17,8 @@ class ScraperSettings(BaseModel):
     css_selector: str
     img_dir: str
     total_pages: int
+    max_image_size_kb: int
+    img_save_extension: str
 
 
 class ImgProcesserSettings(BaseModel):

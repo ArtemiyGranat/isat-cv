@@ -15,12 +15,12 @@ class Entity(BaseModel):
 
 
 class AbstractRepository:
-    def __init__(self, db: Database, entity: Type[Entity]):
+    def __init__(self, db: Database, entity: Type[Entity]) -> None:
         self._db = db
         self._entity = entity
         self._table_name = entity._table_name
 
-    def _get_query_parameters(self, dump):
+    def _get_query_parameters(self, dump) -> (str, str):
         keys = list(dump.keys())
         columns = ",".join(keys)
         placeholders = ",".join(f":{key}" for key in keys)
@@ -28,7 +28,7 @@ class AbstractRepository:
 
     async def add(
         self, entities: BaseModel | List[BaseModel], ignore_conflict=False
-    ):
+    ) -> None:
         if not isinstance(entities, list):
             entities = [entities]
 
@@ -45,7 +45,7 @@ class AbstractRepository:
         await self._db.execute_many(query=query, values=dumps)
         logger.debug(f"Sent query: {query}")
 
-    async def update(self, entity: Entity, fields: List[str]):
+    async def update(self, entity: Entity, fields: List[str]) -> None:
         dump = entity.model_dump()
 
         pk = entity._pk
@@ -86,13 +86,14 @@ class AbstractRepository:
         ]
 
 
+# FIXME: Should be refactored
 class SqliteRepository(AbstractRepository):
-    async def create_table(self):
+    async def create_table(self) -> None:
         await self._db.execute(
             query=f"""CREATE TABLE IF NOT EXISTS {self._table_name}
-                (id TEXT, path TEXT, hash TEXT, processed INTEGER);"""
+                (id TEXT, url TEXT, hash TEXT, processed INTEGER);"""
         )
 
 
-def gen_sqlite_address(creds: DatabaseCredentials):
+def gen_sqlite_address(creds: DatabaseCredentials) -> str:
     return f"{creds.driver}:///{creds.db_name}.db"
