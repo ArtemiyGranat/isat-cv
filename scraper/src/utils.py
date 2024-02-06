@@ -17,7 +17,7 @@ logger = logging.getLogger("app")
 
 class ScraperInfo(BaseModel):
     images_scraped: int
-    current_page: int
+    page: int
 
 
 @retry(stop=stop_after_attempt(7), wait=wait_exponential(multiplier=1, max=60))
@@ -63,7 +63,7 @@ async def process_page_content(
     ]
     unprocessed_urls = [url for url in image_urls if url not in processed_urls]
     if not unprocessed_urls:
-        logger.info("All images on page {info.current_page} already exists")
+        logger.info("All images on page {info.page} already exists")
         return
 
     for url in unprocessed_urls:

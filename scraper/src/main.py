@@ -38,22 +38,19 @@ app.add_middleware(
     status_code=204,
 )
 async def scrape(page: int, amount: int) -> None:
-    info = ScraperInfo(images_scraped=0, current_page=page)
-    while (
-        info.images_scraped < amount
-        and info.current_page < ctx.config.total_pages
-    ):
+    info = ScraperInfo(images_scraped=0, page=page)
+    while info.images_scraped < amount and info.page < ctx.config.total_pages:
         try:
             response = await get_with_retry(f"{ctx.config.start_url}{page}")
-            info.current_page += 1
+            info.page += 1
             if response.status_code != 200:
-                logger.info(f"Page {info.current_page} cannot be retrieved")
+                logger.info(f"Page {info.page} cannot be retrieved")
                 continue
 
             await process_page_content(response.text, info, amount)
         except RetryError:
             raise HTTPException(
                 status_code=524,
-                detail=f"Failed to scrape images from page {info.current_page}",
+                detail=f"Failed to scrape images from page {info.page}",
             )
     logger.info(f"Scraped {amount} images")
