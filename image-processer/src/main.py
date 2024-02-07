@@ -18,7 +18,7 @@ logger = logging.getLogger("app")
 
 
 class Context:
-    def __init__(self):
+    def __init__(self) -> None:
         shared_resources = SharedResources("config/config.json")
 
         self.config = shared_resources.img_processer
@@ -34,28 +34,28 @@ class Context:
     async def dispose_db(self) -> None:
         await self.sqlite.disconnect()
 
-    def init_scheduler(self, func):
+    def init_scheduler(self, func) -> None:
         self.scheduler = AsyncIOScheduler()
         self.scheduler.add_job(
             func, "interval", seconds=self.config.interval, args=[self]
         )
 
 
-async def process_image(ctx: Context, image: models.Image):
+async def process_image(ctx: Context, image: models.Image) -> None:
     with Image.open(f"{ctx.orig_img_dir}/{image.id}.jpg") as orig_img:
         processed_img = rembg.remove(orig_img)
         processed_img.save(f"{ctx.config.img_dir}/{image.id}.png")
 
     await ctx.image_repo.update(
         entity=entities.Image(
-            id=image.id, path=image.path, hash=image.path, processed=1
+            id=image.id, url=image.url, hash=image.hash, processed=1
         ),
         fields=["processed"],
     )
     logger.info(f"Removed background: {ctx.orig_img_dir}/{image.id}.jpg")
 
 
-async def process_images(ctx: Context):
+async def process_images(ctx: Context) -> None:
     images: List[models.Image] = await ctx.image_repo.get_many(
         field="processed", value=0
     )

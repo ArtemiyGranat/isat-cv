@@ -9,7 +9,7 @@ from shared.resources import SharedResources
 
 
 class Context:
-    def __init__(self):
+    def __init__(self) -> None:
         shared_resources = SharedResources("config/config.json")
 
         self.config = shared_resources.scraper
