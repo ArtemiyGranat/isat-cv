@@ -3,7 +3,7 @@ import logging
 import time
 from uuid import uuid4
 
-from bs4 import BeautifulSoup, Tag
+from bs4 import BeautifulSoup
 from context import ctx
 from httpx import Response
 from imagehash import phash
@@ -18,6 +18,7 @@ logger = logging.getLogger("app")
 
 class ScraperInfo(BaseModel):
     images_scraped: int
+    page: int
 
 
 @retry(stop=stop_after_attempt(7), wait=wait_exponential(multiplier=1, max=60))
@@ -47,12 +48,7 @@ def resize_image(img: Image.Image, init_size: float) -> Image.Image:
     return img
 
 
-async def process_image(image: Tag, info: ScraperInfo) -> None:
-    img_url = image["src"]
-    if await ctx.image_repo.get_one(field="url", value=img_url) is not None:
-        logger.info(f"{img_url} already exists")
-        return
-
+async def process_image(url: str, info: ScraperInfo) -> None:
     response = await get_with_retry(img_url)
     if response.status_code != 200:
         logger.error(f"Failed to download image from {img_url}")
@@ -78,7 +74,7 @@ async def process_image(image: Tag, info: ScraperInfo) -> None:
         img.save(output_path)
 
     await ctx.image_repo.add(
-        entities.Image(id=id, url=img_url, hash=hash_value, processed=0)
+        entities.Image(id=id, url=url, hash=hash_value, processed=0)
     )
     info.images_scraped += 1
 
@@ -88,7 +84,21 @@ async def process_page_content(
 ) -> None:
     soup = BeautifulSoup(response_text, "html.parser")
 
-    for image in soup.select(ctx.config.css_selector):
+    image_urls = [
+        image["src"] for image in soup.select(ctx.config.css_selector)
+    ]
+    processed_urls = [
+        image.path
+        for image in await ctx.image_repo.get_many_from_list(
+            field="path", values=image_urls
+        )
+    ]
+    unprocessed_urls = [url for url in image_urls if url not in processed_urls]
+    if not unprocessed_urls:
+        logger.info("All images on page {info.page} already exists")
+        return
+
+    for url in unprocessed_urls:
         if info.images_scraped == amount:
             return
-        await process_image(image, info)
+        await process_image(url, info)

@@ -94,6 +94,29 @@ class SqliteRepository(AbstractRepository):
                 (id TEXT, url TEXT, hash TEXT, processed INTEGER);"""
         )
 
+    async def get_many_from_list(self, field, values) -> List[Entity]:
+        if values is None or not values:
+            return []
+
+        placeholders = ", ".join(
+            [":value{}".format(i) for i, _ in enumerate(values)]
+        )
+        query = f"SELECT * FROM {self._table_name}"
+
+        if field is not None:
+            query += f" WHERE {field} IN ({placeholders})"
+            rows = await self._db.fetch_all(
+                query=query,
+                values={f"value{i}": v for i, v in enumerate(values)},
+            )
+        else:
+            rows = await self._db.fetch_all(query=query)
+
+        return [
+            TypeAdapter(self._entity).validate_python(dict(row._mapping))
+            for row in rows
+        ]
+
 
 def gen_sqlite_address(creds: DatabaseCredentials) -> str:
     return f"{creds.driver}:///{creds.db_name}.db"
