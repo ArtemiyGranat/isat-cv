@@ -17,6 +17,8 @@ dependencies = [
     "tenacity>=8.2.3",
     "imagehash>=4.3.1",
     "pillow>=10.2.0",
+    "apscheduler>=3.10.4",
+    "rembg>=2.0.53",
 ]
 readme = "README.md"
 requires-python = ">= 3.8"
@@ -36,7 +38,7 @@ dev-dependencies = [
 allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
-packages=["backend/src", "scraper/src", "shared"]
+packages=["backend/src", "scraper/src", "image-processer/src", "shared"]
 
 [tool.ruff]
 line-length = 79

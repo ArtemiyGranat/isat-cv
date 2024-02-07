@@ -34,10 +34,16 @@
         "start_url": "https://aboba.com/?page=",
         "img_dir": "scraper/img",
         "css_selector": "img",
-        "total_pages": 1
+        "total_pages": 1,
+        "max_image_size_kb": 1000,
+        "img_save_extension": "jpeg"
     },
     "sqlite_creds": {
         "driver": "sqlite+aiosqlite",
         "db_name": "db/images"
+    },
+    "img_processer": {
+        "interval": 30,
+        "img_dir": "processed_img"
     }
 }

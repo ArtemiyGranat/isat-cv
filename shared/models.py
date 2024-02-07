@@ -13,5 +13,6 @@ class JSONSettings(BaseModel):
 
 class Image(BaseModel):
     id: UUID
-    path: str
+    url: str
     hash: str
+    processed: int  # bool but SQLite moment
