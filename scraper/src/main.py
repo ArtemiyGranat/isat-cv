@@ -2,7 +2,7 @@ import logging
 from contextlib import asynccontextmanager
 
 from context import ctx
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from tenacity import RetryError
 from utils import ScraperInfo, get_with_retry, process_page_content
@@ -35,7 +35,7 @@ app.add_middleware(
 @app.post(
     "/scrape/{page}/{amount}",
     summary="Scrape certain amount of images",
-    status_code=204,
+    status_code=status.HTTP_204_NO_CONTENT,
 )
 async def scrape(page: int, amount: int) -> None:
     info = ScraperInfo(images_scraped=0, page=page)
@@ -50,7 +50,7 @@ async def scrape(page: int, amount: int) -> None:
             await process_page_content(response.text, info, amount)
         except RetryError:
             raise HTTPException(
-                status_code=524,
+                status_code=status.HTTP_504_GATEWAY_TIMEOUT,
                 detail=f"Failed to scrape images from page {info.page}",
             )
     logger.info(f"Scraped {amount} images")
