@@ -49,9 +49,9 @@ def resize_image(img: Image.Image, init_size: float) -> Image.Image:
 
 
 async def process_image(url: str, info: ScraperInfo) -> None:
-    response = await get_with_retry(img_url)
+    response = await get_with_retry(url)
     if response.status_code != 200:
-        logger.error(f"Failed to download image from {img_url}")
+        logger.error(f"Failed to download image from {url}")
         return
 
     with Image.open(io.BytesIO(response.content)) as img:
@@ -64,7 +64,7 @@ async def process_image(url: str, info: ScraperInfo) -> None:
             await ctx.image_repo.get_one(field="hash", value=hash_value)
             is not None
         ):
-            logger.error(f"Found duplicate at {img_url}")
+            logger.error(f"Found duplicate at {url}")
             return
 
         id = str(uuid4())
