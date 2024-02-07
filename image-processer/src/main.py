@@ -9,7 +9,6 @@ from databases import Database
 from PIL import Image
 
 import shared.entities as entities
-import shared.models as models
 from shared.db import SqliteRepository, gen_sqlite_address
 from shared.logger import configure_logging
 from shared.resources import SharedResources
@@ -41,7 +40,7 @@ class Context:
         )
 
 
-async def process_image(ctx: Context, image: models.Image) -> None:
+async def process_image(ctx: Context, image: entities.Image) -> None:
     with Image.open(f"{ctx.orig_img_dir}/{image.id}.jpg") as orig_img:
         processed_img = rembg.remove(orig_img)
         processed_img.save(f"{ctx.config.img_dir}/{image.id}.png")
@@ -56,7 +55,7 @@ async def process_image(ctx: Context, image: models.Image) -> None:
 
 
 async def process_images(ctx: Context) -> None:
-    images: List[models.Image] = await ctx.image_repo.get_many(
+    images: List[entities.Image] = await ctx.image_repo.get_many(
         field="processed", value=0
     )
     for image in images:
