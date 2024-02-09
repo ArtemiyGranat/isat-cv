@@ -41,7 +41,9 @@ async def scrape(page: int, amount: int) -> None:
     info = ScraperInfo(images_scraped=0, page=page)
     while info.images_scraped < amount and info.page < ctx.config.total_pages:
         try:
-            response = await get_with_retry(f"{ctx.config.start_url}{page}")
+            response = await get_with_retry(
+                f"{ctx.config.start_url}{info.page}"
+            )
             info.page += 1
             if response.status_code != 200:
                 logger.info(f"Page {info.page} cannot be retrieved")
