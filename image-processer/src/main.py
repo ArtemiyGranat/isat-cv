@@ -22,6 +22,7 @@ class Context:
 
         self.config = shared_resources.img_processer
         self.orig_img_dir = shared_resources.scraper.img_dir
+        self.orig_img_ext = shared_resources.scraper.img_save_extension
         self.sqlite = Database(
             gen_sqlite_address(shared_resources.sqlite_creds)
         )
@@ -41,7 +42,9 @@ class Context:
 
 
 async def process_image(ctx: Context, image: entities.Image) -> None:
-    with Image.open(f"{ctx.orig_img_dir}/{image.id}.jpg") as orig_img:
+    with Image.open(
+        f"{ctx.orig_img_dir}/{image.id}.{ctx.orig_img_ext}"
+    ) as orig_img:
         processed_img = rembg.remove(orig_img)
         processed_img.save(f"{ctx.config.img_dir}/{image.id}.png")
 
@@ -51,7 +54,9 @@ async def process_image(ctx: Context, image: entities.Image) -> None:
         ),
         fields=["processed"],
     )
-    logger.info(f"Removed background: {ctx.orig_img_dir}/{image.id}.jpg")
+    logger.info(
+        f"Removed background: {ctx.orig_img_dir}/{image.id}.{ctx.orig_img_ext}"
+    )
 
 
 async def process_images(ctx: Context) -> None:
