@@ -22,7 +22,7 @@ services:
     build: image-processer
     volumes:
       - ./config:/app/config
-      - ./image-processer:/app
+      - ./image-processer/src:/app/src
       - ./db:/app/db
       - ./img:/img
       - ./processed_img:/processed_img
