@@ -1,0 +1,28 @@
+services:
+  backend:
+    container_name: backend
+    build: backend
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./config:/app/config
+      - ./backend/src:/app/src
+  scraper:
+    container_name: scraper
+    build: scraper
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./config:/app/config
+      - ./scraper/src:/app/src
+      - ./db:/app/db
+      - ./img:/img
+  image-processer:
+    container_name: image-processer
+    build: image-processer
+    volumes:
+      - ./config:/app/config
+      - ./image-processer:/app
+      - ./db:/app/db
+      - ./img:/img
+      - ./processed_img:/processed_img

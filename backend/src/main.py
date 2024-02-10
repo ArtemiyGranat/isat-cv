@@ -10,6 +10,7 @@ from shared.logger import configure_logging
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     configure_logging()
+    yield
 
 
 app = FastAPI(lifespan=lifespan)
