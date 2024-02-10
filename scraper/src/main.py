@@ -44,12 +44,13 @@ async def scrape(page: int, amount: int) -> None:
             response = await get_with_retry(
                 f"{ctx.config.start_url}{info.page}"
             )
-            info.page += 1
             if response.status_code != 200:
+                info.page += 1
                 logger.info(f"Page {info.page} cannot be retrieved")
                 continue
 
             await process_page_content(response.text, info, amount)
+            info.page += 1
         except RetryError:
             raise HTTPException(
                 status_code=status.HTTP_504_GATEWAY_TIMEOUT,
