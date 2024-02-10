@@ -77,25 +77,33 @@ async def process_image(url: str, info: ScraperInfo) -> None:
     info.images_scraped += 1
 
 
-async def filter_urls(tags):
+async def filter_urls(info, tags):
     image_urls = [image["src"] for image in tags]
+    if not image_urls:
+        logger.info(f"There is no images on page {info.page}")
+        return []
+
     processed_urls = [
         image.url
         for image in await ctx.image_repo.get_many_from_list(
             field="url", values=image_urls
         )
     ]
+    unprocessed_urls = [url for url in image_urls if url not in processed_urls]
+    if not unprocessed_urls:
+        logger.info(f"All images on page {info.page} already exists")
 
-    return [url for url in image_urls if url not in processed_urls]
+    return unprocessed_urls
 
 
 async def process_page_content(
     response_text: str, info: ScraperInfo, amount: int
 ) -> None:
     soup = BeautifulSoup(response_text, "html.parser")
-    unprocessed_urls = await filter_urls(soup.select(ctx.config.css_selector))
+    unprocessed_urls = await filter_urls(
+        info, soup.select(ctx.config.css_selector)
+    )
     if not unprocessed_urls:
-        logger.info("All images on page {info.page} already exists")
         return
 
     for url in unprocessed_urls:
