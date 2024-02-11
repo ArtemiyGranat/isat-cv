@@ -1,4 +1,8 @@
 <!-- src/routes/+page.svelte -->
+<script context="module">
+	export const BACKEND_URL = 'http://0.0.0.0:8000';
+</script>
+
 <script>
   let isLoading = false;
   let startPage = '';
@@ -12,7 +16,7 @@
     
     isLoading = true;
     try {
-      const url = `http://backend-url/scrape/${startPage}/${amount}`;
+      const url = `${BACKEND_URL}/scrape/${startPage}/${amount}`;
       const response = await fetch(url, { method: 'POST' });
     } catch (error) {
       console.error('Error:', error);
@@ -55,14 +59,6 @@
     justify-content: space-between;
     margin-bottom: 15px;
     text-align: left;
-  }
-
-  .input-group label {
-    display: flex;
-    margin-bottom: 4px;
-    font-weight: 600;
-    color: #333;
-    font-size: 0.9em;
   }
 
   .input-group input {

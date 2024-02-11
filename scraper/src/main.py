@@ -25,7 +25,11 @@ logger = logging.getLogger("app")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+        "http://0.0.0.0:8000",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -57,3 +61,8 @@ async def scrape(page: int, amount: int) -> None:
                 detail=f"Failed to scrape images from page {info.page}",
             )
     logger.info(f"Scraped {amount} images")
+
+
+@app.get("/", summary="Check availability")
+async def hello():
+    return "Scraper is running!"
