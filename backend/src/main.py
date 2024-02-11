@@ -56,6 +56,33 @@ async def scrape(page: int, amount: int) -> None:
     return {"message": f"Scraped {amount} images"}
 
 
+@app.get(
+    "/color_search/{color}",
+    summary="Search images by color",
+    status_code=status.HTTP_501_NOT_IMPLEMENTED,
+)
+def color_search():
+    return "Not implemented"
+
+
+@app.get(
+    "/text_search/{text}",
+    summary="Search images by text",
+    status_code=status.HTTP_501_NOT_IMPLEMENTED,
+)
+def text_search():
+    return "Not implemented"
+
+
+@app.get(
+    "/image_search/",
+    summary="Search images by another image",
+    status_code=status.HTTP_501_NOT_IMPLEMENTED,
+)
+def image_search():
+    return "Not implemented"
+
+
 @app.get("/", summary="Hello, world")
 def hello():
     return "Hello, world!"
