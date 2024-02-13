@@ -1,0 +1,49 @@
+{
+    "logger": {
+        "version": 1,
+        "disable_existing_loggers": false,
+        "filters": {
+            "correlation_id": {
+                "()": "asgi_correlation_id.CorrelationIdFilter",
+                "uuid_length": 64,
+                "default_value": "-"
+            }
+        },
+        "formatters": {
+            "console": {
+                "class": "logging.Formatter",
+                "datefmt": "%H:%M:%S",
+                "format": "[%(levelname)s] [%(asctime)s] %(message)s (%(correlation_id)s)"
+            }
+        },
+        "handlers": {
+            "console": {
+                "class": "logging.StreamHandler",
+                "filters": ["correlation_id"],
+                "formatter": "console"
+            }
+        },
+        "loggers": {
+            "app": {"handlers": ["console"], "level": "DEBUG", "propagate": true},
+            "databases": {"handlers": ["console"], "level": "INFO"},
+            "httpx": {"handlers": ["console"], "level": "INFO"},
+            "asgi_correlation_id": {"handlers": ["console"], "level": "INFO"}
+        }
+    },
+    "scraper": {
+        "start_url": "https://aboba.com/?page=",
+        "img_dir": "scraper/img",
+        "css_selector": "img",
+        "total_pages": 1,
+        "max_image_size_kb": 1000,
+        "img_save_extension": "jpeg"
+    },
+    "sqlite_creds": {
+        "driver": "sqlite+aiosqlite",
+        "db_name": "db/images"
+    },
+    "img_processer": {
+        "interval": 30,
+        "img_dir": "processed_img"
+    }
+}
