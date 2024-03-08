@@ -35,14 +35,14 @@ app.add_middleware(
 
 
 @app.post(
-    "/color-search/{type}",
-    summary="Get 10 images with complementary median image color",
+    "/color-search/{color_model}",
+    summary="Get images with complementary median image color",
     status_code=status.HTTP_200_OK,
 )
-async def color_search(page: int, amount: int) -> None:
-    if type == "hsv":
+async def color_search(color_model: str, amount: int = 10) -> None:
+    if color_model == "hsv":
         return "hsv"
-    elif type == "lab":
+    elif color_model == "lab":
         return "lab"
 
     raise HTTPException(
