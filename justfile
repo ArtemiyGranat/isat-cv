@@ -5,7 +5,7 @@ separate-compose := "command -v docker-compose 2>/dev/null"
 init:
     if [ ! -f requirements.lock ]; then rye sync; fi
     rye run pre-commit install
-    docker build -t gprk-base:latest .
+    docker build -t isat-cv-base:latest .
     if {{ separate-compose }};     \
         then docker-compose build; \
         else docker compose build; \

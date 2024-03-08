@@ -10,8 +10,7 @@ class ColorModel(int, Enum):
     HSV = 1
 
 
-def mean_color(image_path, color_model):
-    image = Image.open(image_path).convert("RGBA")
+def mean_color(image: Image, color_model: ColorModel):
     np_image = np.array(image)
 
     mask = np_image[..., 3] > 0

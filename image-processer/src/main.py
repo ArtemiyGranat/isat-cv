@@ -9,6 +9,7 @@ from databases import Database
 from PIL import Image
 
 import shared.entities as entities
+from shared.color import ColorModel, mean_color
 from shared.db import SqliteRepository, gen_sqlite_address
 from shared.logger import configure_logging
 from shared.resources import SharedResources
@@ -46,11 +47,22 @@ async def process_image(ctx: Context, image: entities.Image) -> None:
         f"{ctx.orig_img_dir}/{image.id}.{ctx.orig_img_ext}"
     ) as orig_img:
         processed_img = rembg.remove(orig_img)
+        mean_hsv = mean_color(processed_img, ColorModel.HSV)
+        mean_lab = mean_color(processed_img, ColorModel.LAB)
         processed_img.save(f"{ctx.config.img_dir}/{image.id}.png")
 
     await ctx.image_repo.update(
         entity=entities.Image(
-            id=image.id, url=image.url, hash=image.hash, processed=1
+            id=image.id,
+            url=image.url,
+            hash=image.hash,
+            mean_h=mean_hsv[0],
+            mean_s=mean_hsv[1],
+            mean_v=mean_hsv[2],
+            mean_l=mean_lab[0],
+            mean_a=mean_lab[1],
+            mean_b=mean_lab[2],
+            processed=1,
         ),
         fields=["processed"],
     )
