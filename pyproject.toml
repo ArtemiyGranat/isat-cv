@@ -19,6 +19,7 @@ dependencies = [
     "pillow>=10.2.0",
     "apscheduler>=3.10.4",
     "rembg>=2.0.53",
+    "python-multipart>=0.0.9",
 ]
 readme = "README.md"
 requires-python = ">= 3.8"

@@ -4,24 +4,46 @@
 </script>
 
 <script>
-  let isLoading = false;
+  let isLoadingScrape = false;
+  let isLoadingColor = false;
   let startPage = '';
   let amount = '';
 
-  const handleButtonClick = async () => {
+  const scrape = async () => {
     if (!startPage || !amount) {
       alert('Please fill in all fields.');
       return;
     }
     
-    isLoading = true;
+    isLoadingScrape = true;
     try {
       const url = `${BACKEND_URL}/scrape/${startPage}/${amount}`;
       const response = await fetch(url, { method: 'POST' });
     } catch (error) {
       console.error('Error:', error);
     } finally {
-      isLoading = false;
+      isLoadingScrape = false;
+    }
+  };
+
+
+  const colorSearch = async () => {
+    isLoadingColor = true;
+    try {
+      const colorSearchFile = document.getElementById("colorSearchFile");
+      if (colorSearchFile.files.length === 0) {
+        alert('Please upload a file');
+        return;
+      }
+      const formData = new FormData();
+      formData.append('image', colorSearchFile.files[0]);
+
+      const url = `${BACKEND_URL}/color_search/`;
+      const response = await fetch(url, { method: 'POST', body: formData });
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      isLoadingColor = false;
     }
   };
 </script>
@@ -34,9 +56,19 @@
     <input type="text" id="startPage" bind:value={startPage} placeholder="Enter start page" />
     <input type="number" id="amount" bind:value={amount} placeholder="Enter amount" />
   </div>
-  <button on:click={handleButtonClick} disabled={isLoading}>
-    {isLoading ? 'Loading...' : 'Scrape'}
+  <button on:click={scrape} disabled={isLoadingScrape}>
+    {isLoadingScrape ? 'Loading...' : 'Scrape'}
   </button>
+  <h1>Color search</h1>
+  <h3>Upload image, then click on "Search" button</h3>
+  <div class="input-group">
+     <input type="file" id="colorSearchFile" accept="image/*" />
+  </div>
+  <button on:click={colorSearch} disabled={isLoadingColor}>
+    {isLoadingColor ? 'Loading...' : 'Search for 10 images with most complementary median color'}
+  </button>
+    
+
 </main>
 
 <style>

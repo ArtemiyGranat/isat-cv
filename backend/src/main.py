@@ -3,7 +3,7 @@ import os
 from contextlib import asynccontextmanager
 
 import httpx
-from fastapi import FastAPI, status
+from fastapi import FastAPI, File, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
 
 from shared.logger import configure_logging
@@ -56,13 +56,14 @@ async def scrape(page: int, amount: int) -> None:
     return {"message": f"Scraped {amount} images"}
 
 
-@app.get(
-    "/color_search/{color}",
+@app.post(
+    "/color_search/",
     summary="Search images by color",
-    status_code=status.HTTP_501_NOT_IMPLEMENTED,
+    status_code=status.HTTP_200_OK,
 )
-def color_search():
-    return "Not implemented"
+def color_search(image: UploadFile = File(...)):
+    logger.info(image)
+    return {"image": image.filename}
 
 
 @app.get(

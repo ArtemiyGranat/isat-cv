@@ -1,9 +1,10 @@
 from enum import Enum
 
-import entities
 import numpy as np
-from PIL import Image
+import PIL
 from skimage import color
+
+from shared.entities import Image
 
 
 class ColorModel(int, Enum):
@@ -11,7 +12,7 @@ class ColorModel(int, Enum):
     HSV = 1
 
 
-def compute_mean_color(image: Image, color_model: ColorModel):
+def compute_mean_color(image: PIL.Image, color_model: ColorModel):
     np_image = np.array(image)
 
     mask = np_image[..., 3] > 0
@@ -26,7 +27,7 @@ def compute_mean_color(image: Image, color_model: ColorModel):
     return mean_color
 
 
-def mean_color(image: entities.Image, color_model: ColorModel):
+def mean_color(image: Image, color_model: ColorModel):
     if color_model == ColorModel.LAB:
         return [image.mean_l, image.mean_a, image.mean_b]
     else:
