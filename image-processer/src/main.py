@@ -29,6 +29,9 @@ class Context:
         )
         self.image_repo = SqliteRepository(self.sqlite, entities.Image)
 
+        self.model = "unet"
+        self.session = rembg.new_session(self.model)
+
     async def init_db(self) -> None:
         await self.sqlite.connect()
 
@@ -46,7 +49,7 @@ async def process_image(ctx: Context, image: entities.Image) -> None:
     with Image.open(
         f"{ctx.orig_img_dir}/{image.id}.{ctx.orig_img_ext}"
     ) as orig_img:
-        processed_img = rembg.remove(orig_img)
+        processed_img = rembg.remove(orig_img, session=ctx.session)
         mean_hsv = compute_mean_color(processed_img, ColorModel.HSV)
         mean_lab = compute_mean_color(processed_img, ColorModel.LAB)
 
