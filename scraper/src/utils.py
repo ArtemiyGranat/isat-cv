@@ -72,7 +72,18 @@ async def process_image(url: str, info: ScraperInfo) -> None:
         img.save(output_path)
 
     await ctx.image_repo.add(
-        entities.Image(id=id, url=url, hash=hash_value, processed=0)
+        entities.Image(
+            id=id,
+            url=url,
+            hash=hash_value,
+            mean_h=0,
+            mean_s=0,
+            mean_v=0,
+            mean_l=0,
+            mean_a=0,
+            mean_b=0,
+            processed=0,
+        )
     )
     info.images_scraped += 1
 

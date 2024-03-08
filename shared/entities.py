@@ -7,6 +7,12 @@ class Image(Entity):
     id: str
     url: str
     hash: str
+    mean_h: float
+    mean_s: float
+    mean_v: float
+    mean_l: float
+    mean_a: float
+    mean_b: float
     processed: int  # bool but SQLite moment
 
     _pk: ClassVar[str] = "id"

@@ -1,5 +1,7 @@
 separate-compose := "command -v docker-compose 2>/dev/null"
 
+# TODO: add compose variable to avoid branching in every recipe
+
 init:
     if [ ! -f requirements.lock ]; then rye sync; fi
     rye run pre-commit install
