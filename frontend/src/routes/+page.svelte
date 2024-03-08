@@ -5,10 +5,12 @@
 
 <script>
   let isLoadingScrape = false;
-  let isLoadingColor = false;
   let startPage = '';
   let amount = '';
+
+  let isLoadingColor = false;
   let colorSearchResponse = [];
+  let colorModel = -1;
 
   const scrape = async () => {
     if (!startPage || !amount) {
@@ -32,14 +34,16 @@
     isLoadingColor = true;
     try {
       const colorSearchFile = document.getElementById("colorSearchFile");
-      if (colorSearchFile.files.length === 0) {
-        alert('Please upload a file');
+      if (colorSearchFile.files.length === 0 || colorModel == -1) {
+        alert('Please upload a file and select a color model');
         return;
       }
+      const colorModelTxt = (colorModel == 0) ? "lab" : "hsv";
+
       const formData = new FormData();
       formData.append('image', colorSearchFile.files[0]);
 
-      const url = `${BACKEND_URL}/color_search/`;
+      const url = `${BACKEND_URL}/color_search/${colorModelTxt}`;
       const response = await fetch(url, { method: 'POST', body: formData });
       colorSearchResponse = await response.json();
       console.log(colorSearchResponse)
@@ -63,9 +67,15 @@
     {isLoadingScrape ? 'Loading...' : 'Scrape'}
   </button>
   <h1>Color search</h1>
-  <h3>Upload image, then click on "Search" button</h3>
+  <h3>Upload image and select color model (LAB or HSV), then click on "Search" button</h3>
   <div class="input-group">
      <input type="file" id="colorSearchFile" accept="image/*" />
+     <label>
+     <input type="radio" bind:group={colorModel} value={0} /> LAB
+     </label>
+     <label>
+     <input type="radio" bind:group={colorModel} value={1} /> HSV
+     </label>
   </div>
   <button on:click={colorSearch} disabled={isLoadingColor}>
     {isLoadingColor ? 'Loading...' : 'Search for 10 images with most complementary median color'}
@@ -83,7 +93,7 @@
   main {
     text-align: center;
     padding: 1.5em;
-    max-width: 360px;
+    max-width: 65%;
     margin: 0 auto;
   }
 
