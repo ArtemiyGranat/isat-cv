@@ -1,10 +1,10 @@
 from enum import Enum
 
 import numpy as np
-import PIL
+from PIL import Image
 from skimage import color
 
-from shared.entities import Image
+from shared.entities import Image as ImageEntity
 
 
 class ColorModel(int, Enum):
@@ -12,7 +12,7 @@ class ColorModel(int, Enum):
     HSV = 1
 
 
-def compute_mean_color(image: PIL.Image, color_model: ColorModel):
+def compute_mean_color(image: Image, color_model: ColorModel):
     np_image = np.array(image)
 
     mask = np_image[..., 3] > 0
@@ -27,15 +27,15 @@ def compute_mean_color(image: PIL.Image, color_model: ColorModel):
     return mean_color
 
 
-def mean_color(image: Image, color_model: ColorModel):
+def mean_color(image: ImageEntity, color_model: ColorModel):
     if color_model == ColorModel.LAB:
-        return [image.mean_l, image.mean_a, image.mean_b]
+        return (image.mean_l, image.mean_a, image.mean_b)
     else:
-        return [image.mean_h, image.mean_s, image.mean_v]
+        return (image.mean_h, image.mean_s, image.mean_v)
 
 
-def color_distance(color, other_color, color_model: ColorModel):
+def color_distance(target_color, other_color, color_model: ColorModel):
     if color_model == ColorModel.HSV:
-        return np.sqrt(np.sum((color - other_color) ** 2))
+        return np.sqrt(np.sum((target_color - other_color) ** 2))
     else:
-        return color.deltaE_ciede2000(color, other_color)
+        return color.deltaE_ciede2000(target_color, other_color)

@@ -2,9 +2,11 @@ import logging
 from contextlib import asynccontextmanager
 
 from cs_context import ctx
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, File, HTTPException, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
+from utils import similar_color
 
+from shared.color import ColorModel
 from shared.logger import configure_logging
 
 
@@ -35,20 +37,21 @@ app.add_middleware(
 
 
 @app.post(
-    "/color-search/{color_model}",
+    "/color_search/{color_model}",
     summary="Get images with complementary median image color",
     status_code=status.HTTP_200_OK,
 )
-async def color_search(color_model: str, amount: int = 10) -> None:
-    if color_model == "hsv":
-        return "hsv"
-    elif color_model == "lab":
-        return "lab"
+async def color_search(
+    color_model: str, image: UploadFile = File(...), amount: int = 10
+) -> None:
+    if color_model != "hsv" and color_model != "lab":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Unknown color search type, available types is 'hsv' and 'lab'",
+        )
 
-    raise HTTPException(
-        status_code=status.HTTP_400_BAD_REQUEST,
-        detail="Unknown color search type, available types is 'hsv' and 'lab'",
-    )
+    color_model = ColorModel.LAB if color_model == "lab" else ColorModel.HSV
+    return await similar_color(image.file, color_model, amount)
 
 
 @app.get("/", summary="Check availability")

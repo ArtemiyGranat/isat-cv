@@ -8,6 +8,7 @@
   let isLoadingColor = false;
   let startPage = '';
   let amount = '';
+  let colorSearchResponse = [];
 
   const scrape = async () => {
     if (!startPage || !amount) {
@@ -40,6 +41,8 @@
 
       const url = `${BACKEND_URL}/color_search/`;
       const response = await fetch(url, { method: 'POST', body: formData });
+      colorSearchResponse = await response.json();
+      console.log(colorSearchResponse)
     } catch (error) {
       console.error('Error:', error);
     } finally {
@@ -67,6 +70,11 @@
   <button on:click={colorSearch} disabled={isLoadingColor}>
     {isLoadingColor ? 'Loading...' : 'Search for 10 images with most complementary median color'}
   </button>
+  <div class="image-grid">
+    {#each colorSearchResponse as imageUrl}
+        <img src={imageUrl} alt="Image" />
+    {/each}
+  </div>
     
 
 </main>
@@ -121,4 +129,17 @@
   button:hover:enabled {
     background-color: #217dbb;
   }
+
+  .image-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Adjust the minmax values as needed */
+    gap: 10px;
+    padding: 10px;
+  }
+  .image-grid img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+
 </style>

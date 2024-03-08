@@ -49,6 +49,7 @@ async def process_image(ctx: Context, image: entities.Image) -> None:
         processed_img = rembg.remove(orig_img)
         mean_hsv = compute_mean_color(processed_img, ColorModel.HSV)
         mean_lab = compute_mean_color(processed_img, ColorModel.LAB)
+
         processed_img.save(f"{ctx.config.img_dir}/{image.id}.png")
 
     await ctx.image_repo.update(
@@ -64,7 +65,15 @@ async def process_image(ctx: Context, image: entities.Image) -> None:
             mean_b=mean_lab[2],
             processed=1,
         ),
-        fields=["processed"],
+        fields=[
+            "processed",
+            "mean_h",
+            "mean_s",
+            "mean_v",
+            "mean_l",
+            "mean_a",
+            "mean_b",
+        ],
     )
     logger.info(
         f"Removed background: {ctx.orig_img_dir}/{image.id}.{ctx.orig_img_ext}"

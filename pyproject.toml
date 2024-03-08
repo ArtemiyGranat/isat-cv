@@ -39,7 +39,7 @@ dev-dependencies = [
 allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
-packages=["backend/src", "scraper/src", "image-processer/src", "shared"]
+packages=["backend/src", "scraper/src", "image-processer/src", "color-search/src", "shared"]
 
 [tool.ruff]
 line-length = 79
