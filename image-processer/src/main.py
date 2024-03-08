@@ -79,7 +79,7 @@ async def process_image(ctx: Context, image: entities.Image) -> None:
         ],
     )
     logger.info(
-        f"Removed background: {ctx.orig_img_dir}/{image.id}.{ctx.orig_img_ext}"
+        f"Processed image: {ctx.orig_img_dir}/{image.id}.{ctx.orig_img_ext}"
     )
 
 

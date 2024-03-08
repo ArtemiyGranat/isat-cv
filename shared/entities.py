@@ -3,6 +3,7 @@ from typing import ClassVar
 from shared.db import Entity
 
 
+# TODO: Nested models? HsvData/LabData
 class Image(Entity):
     id: str
     url: str

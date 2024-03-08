@@ -6,6 +6,7 @@ from shared.entities import Image
 from shared.resources import SharedResources
 
 
+# TODO: cs_context name is not the best I guess
 class Context:
     def __init__(self) -> None:
         shared_resources = SharedResources("config/config.json")

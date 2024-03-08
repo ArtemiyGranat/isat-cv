@@ -15,9 +15,11 @@ async def lifespan(_: FastAPI):
     configure_logging()
     await ctx.init_db()
     await ctx.image_repo.create_table()
-    yield
-    await ctx.close_client()
-    await ctx.dispose_db()
+    try:
+        yield
+    finally:
+        await ctx.close_client()
+        await ctx.dispose_db()
 
 
 app = FastAPI(lifespan=lifespan)
@@ -44,10 +46,10 @@ app.add_middleware(
 async def color_search(
     color_model: str, image: UploadFile = File(...), amount: int = 10
 ) -> None:
-    if color_model != "hsv" and color_model != "lab":
+    if color_model not in ["hsv", "lab"]:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Unknown color search type, available types is 'hsv' and 'lab'",
+            detail="Unknown color model, available models is 'hsv' and 'lab'",
         )
 
     color_model = ColorModel.LAB if color_model == "lab" else ColorModel.HSV

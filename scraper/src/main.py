@@ -15,9 +15,11 @@ async def lifespan(_: FastAPI):
     configure_logging()
     await ctx.init_db()
     await ctx.image_repo.create_table()
-    yield
-    await ctx.close_client()
-    await ctx.dispose_db()
+    try:
+        yield
+    finally:
+        await ctx.close_client()
+        await ctx.dispose_db()
 
 
 app = FastAPI(lifespan=lifespan)
