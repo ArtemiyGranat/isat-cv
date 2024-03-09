@@ -7,6 +7,7 @@ services:
     environment:
       - SCRAPER_URL=http://scraper:8000
       - COLOR_SEARCH_URL=http://color_search:8000
+      - IMAGE_BLENDER_URL=http://image_blender:8000
     volumes:
       - ./config:/app/config
       - ./backend/src:/app/src
@@ -39,3 +40,11 @@ services:
       - ./db:/app/db
       - ./img:/app/img
       - ./processed_img:/app/processed_img
+  image-blender:
+    container_name: image-blender
+    build: image-blender
+    ports:
+      - "8003:8000"
+    volumes:
+      - ./config:/app/config
+      - ./image-blender/src:/app/src

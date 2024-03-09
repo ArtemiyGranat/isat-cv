@@ -39,12 +39,15 @@ class Context:
         self.http_client = httpx.AsyncClient()
         self.scraper_url = os.getenv("SCRAPER_URL")
         self.color_search_url = os.getenv("COLOR_SEARCH_URL")
+        self.image_blender_url = os.getenv("IMAGE_BLENDER_URL")
 
     async def close_client(self) -> None:
         await self.http_client.aclose()
 
 
 ctx = Context()
+
+# TODO: if service is unavailable give some feedback to frontend
 
 
 # TODO: Progress? WebSockets?
@@ -75,6 +78,24 @@ async def color_search(color_model: str, image: UploadFile = File(...)):
     return urls.json()
 
 
+@app.post(
+    "/blend/",
+    summary="Blend two images using Laplacian and Gaussian pyramids",
+    status_code=status.HTTP_200_OK,
+)
+async def blend(
+    first_image: UploadFile = File(...), second_image: UploadFile = File(...)
+):
+    await ctx.http_client.post(
+        f"{ctx.image_blender_url}/blend",
+        files={
+            "first_file": (first_image.file),
+            "second_file": (second_image.file),
+        },
+        timeout=None,
+    )
+
+
 @app.get(
     "/text_search/{text}",
     summary="Search images by text",
@@ -93,6 +114,6 @@ def image_search():
     return "Not implemented"
 
 
-@app.get("/", summary="Hello, world")
-def hello():
-    return "Hello, world!"
+@app.get("/", summary="Check availability")
+def healthcheck():
+    return "IsatCv is running!"
