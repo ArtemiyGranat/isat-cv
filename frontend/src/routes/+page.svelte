@@ -12,6 +12,9 @@
   let colorSearchResponse = [];
   let colorModel = -1;
 
+  let isLoadingBlend = false;
+  let blendResponse = [];
+
   const scrape = async () => {
     if (!startPage || !amount) {
       alert('Please fill in all fields.');
@@ -53,10 +56,36 @@
       isLoadingColor = false;
     }
   };
+
+  const blend = async () => {
+    isLoadingBlend = true;
+    try {
+      const blendImage1 = document.getElementById("blendImage1");
+      const blendImage2 = document.getElementById("blendImage2");
+      if (blendImage1.files.length === 0 || blendImage2.files.length == 0) {
+        alert('Please upload two images');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('first_image', blendImage1.files[0]);
+      formData.append('second_image', blendImage2.files[0]);
+
+      const url = `${BACKEND_URL}/blend/`;
+      const response = await fetch(url, { method: 'POST', body: formData });
+      const blob = await response.blob();
+      blendResponse = [URL.createObjectURL(blob)]
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      isLoadingBlend = false;
+    }
+  };
 </script>
 
 <main>
   <h1>Educational Project</h1>
+
   <h1>Scraper</h1>
   <h3>Fill in start page and amount of images to be scraped, then click on "Scrape" button</h3>
   <div class="input-group">
@@ -66,6 +95,7 @@
   <button on:click={scrape} disabled={isLoadingScrape}>
     {isLoadingScrape ? 'Loading...' : 'Scrape'}
   </button>
+
   <h1>Color search</h1>
   <h3>Upload image and select color model (LAB or HSV), then click on "Search" button</h3>
   <div class="input-group">
@@ -86,7 +116,20 @@
     {/each}
   </div>
     
-
+  <h1>Image blending using Laplacian and Gaussian pyramids</h1>
+  <h3>Upload two images, then click on "Blend" button</h3>
+  <div class="input-group">
+     <input type="file" id="blendImage1" accept="image/*" />
+     <input type="file" id="blendImage2" accept="image/*" />
+  </div>
+  <button on:click={blend} disabled={isLoadingBlend}>
+    {isLoadingColor ? 'Loading...' : 'Blend images'}
+  </button>
+  <div class="blended-image">
+    {#each blendResponse as imageUrl}
+        <img src={imageUrl} alt="Blended image" />
+    {/each}
+  </div>
 </main>
 
 <style>
@@ -163,8 +206,19 @@
     gap: 10px;
     padding: 10px;
   }
+
   .image-grid img {
     width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+
+  .blended-image {
+    padding: 10px;
+  }
+
+  .blended-image img {
+    width: 30%;
     height: auto;
     object-fit: cover;
   }
