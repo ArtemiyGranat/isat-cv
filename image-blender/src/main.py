@@ -43,7 +43,7 @@ app.add_middleware(
 )
 async def blend(
     first_image: UploadFile = File(...), second_image: UploadFile = File(...)
-) -> None:
+) -> Response:
     blended_image = blend_images(first_image.file, second_image.file)
 
     # TODO: Find a way to do this more elegant

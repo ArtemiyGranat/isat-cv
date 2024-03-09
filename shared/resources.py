@@ -24,7 +24,8 @@ class ScraperSettings(BaseModel):
 class ImgProcesserSettings(BaseModel):
     interval: int
     img_dir: str
-    model: str
+    rembg_model: str
+    tensors_dir: str
 
 
 class ImgBlenderSettings(BaseModel):

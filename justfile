@@ -1,6 +1,8 @@
 separate-compose := "command -v docker-compose 2>/dev/null"
 
 # TODO: add compose variable to avoid branching in every recipe
+# TODO: add clean recipe? or re-init? right now its
+# `docker system prune -a && just init`
 
 init:
     if [ ! -f requirements.lock ]; then rye sync; fi

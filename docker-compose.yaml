@@ -39,6 +39,7 @@ services:
       - ./db:/app/db
       - ./img:/app/img
       - ./processed_img:/app/processed_img
+      - ./tensors:/app/tensors
   image-blender:
     container_name: image_blender
     build: image-blender

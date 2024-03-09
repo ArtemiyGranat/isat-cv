@@ -4,6 +4,9 @@ import os
 from typing import List
 
 import rembg
+import torch
+import torchvision.models as models
+import torchvision.transforms as transforms
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from databases import Database
 from PIL import Image
@@ -22,14 +25,28 @@ class Context:
         shared_resources = SharedResources(CONFIG_PATH)
 
         self.config = shared_resources.img_processer
+
+        self.tensors_dir = self.config.tensors_dir
+        self.session = rembg.new_session(self.config.rembg_model)
+
         self.orig_img_dir = shared_resources.scraper.img_dir
         self.orig_img_ext = shared_resources.scraper.img_save_extension
+
         self.sqlite = Database(
             gen_sqlite_address(shared_resources.sqlite_creds)
         )
         self.image_repo = SqliteRepository(self.sqlite, entities.Image)
 
-        self.session = rembg.new_session(self.config.model)
+        self.transform = transforms.Compose(
+            [
+                transforms.Resize((224, 224)),
+                transforms.ToTensor(),
+                transforms.Normalize(
+                    mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+                ),
+            ]
+        )
+        self.model = models.resnet18(pretrained=True)
 
     async def init_db(self) -> None:
         await self.sqlite.connect()
@@ -51,6 +68,12 @@ async def process_image(ctx: Context, image: entities.Image) -> None:
         processed_img = rembg.remove(orig_img, session=ctx.session)
         mean_hsv = compute_mean_color(processed_img, ColorModel.HSV)
         mean_lab = compute_mean_color(processed_img, ColorModel.LAB)
+
+        transformed_image = ctx.transform(orig_img).unsqueeze(0)
+        with torch.no_grad():
+            features = ctx.model(transformed_image)
+        torch.save(features.squeeze(0), f"{ctx.tensors_dir}/{image.id}.pt")
+        logger.info(f"Saved tensor to {ctx.tensors_dir}/{image.id}.pt")
 
         processed_img.save(f"{ctx.config.img_dir}/{image.id}.png")
 

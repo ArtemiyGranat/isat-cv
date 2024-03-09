@@ -17,3 +17,4 @@ config/config.json
 img/
 processed_img/
 db/
+tensors/
