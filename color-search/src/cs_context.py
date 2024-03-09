@@ -1,4 +1,3 @@
-import httpx
 from databases import Database
 
 from shared.db import SqliteRepository, gen_sqlite_address
@@ -14,7 +13,6 @@ class Context:
         self.sqlite = Database(
             gen_sqlite_address(shared_resources.sqlite_creds)
         )
-        self.http_client = httpx.AsyncClient()
         self.image_repo = SqliteRepository(self.sqlite, Image)
 
     async def init_db(self) -> None:
@@ -22,9 +20,6 @@ class Context:
 
     async def dispose_db(self) -> None:
         await self.sqlite.disconnect()
-
-    async def close_client(self) -> None:
-        await self.http_client.aclose()
 
 
 ctx = Context()

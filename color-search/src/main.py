@@ -15,11 +15,9 @@ from shared.logger import configure_logging
 async def lifespan(_: FastAPI):
     configure_logging()
     await ctx.init_db()
-    await ctx.image_repo.create_table()
     try:
         yield
     finally:
-        await ctx.close_client()
         await ctx.dispose_db()
 
 
