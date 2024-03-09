@@ -90,6 +90,18 @@
 </main>
 
 <style>
+  @font-face {
+    font-family: 'Inter-Regular';
+    src: url('Inter-Regular.woff2') format('woff2'),
+      url('Inter-Regular.woff') format('woff');
+    font-display: swap;
+    font-style: normal;
+  }
+
+  * {
+    font-family: -apple-system, 'Inter-Regular';
+  }
+
   main {
     text-align: center;
     padding: 1.5em;
@@ -100,8 +112,12 @@
   h1 {
     color: #3498db;
     font-size: 2em;
-    font-weight: 700;
+    font-weight: normal;
     margin-bottom: 15px;
+  }
+
+  h2 {
+    font-weight: normal;
   }
 
   .input-group {
@@ -121,6 +137,7 @@
   }
 
   button {
+    font-family: 'Inter-Regular';
     background-color: #3498db;
     color: white;
     padding: 10px 20px;
