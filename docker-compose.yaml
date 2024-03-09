@@ -8,6 +8,7 @@ services:
       - SCRAPER_URL=http://scraper:8000
       - COLOR_SEARCH_URL=http://color_search:8000
       - IMAGE_BLENDER_URL=http://image_blender:8000
+      - IMAGE_SEARCH_URL=http://image_search:8000
     volumes:
       - ./config:/app/config
       - ./backend/src:/app/src
@@ -48,3 +49,11 @@ services:
     volumes:
       - ./config:/app/config
       - ./image-blender/src:/app/src
+  image-search:
+    container_name: image_search
+    build: image-search
+    volumes:
+      - ./config:/app/config
+      - ./image-search/src:/app/src
+      - ./db:/app/db
+      - ./tensors:/app/tensors

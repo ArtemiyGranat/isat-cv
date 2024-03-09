@@ -40,6 +40,7 @@ class Context:
         self.scraper_url = os.getenv("SCRAPER_URL")
         self.color_search_url = os.getenv("COLOR_SEARCH_URL")
         self.image_blender_url = os.getenv("IMAGE_BLENDER_URL")
+        self.image_search_url = os.getenv("IMAGE_SEARCH_URL")
 
     async def close_client(self) -> None:
         await self.http_client.aclose()
@@ -111,13 +112,19 @@ def text_search():
     return "Not implemented"
 
 
-@app.get(
+@app.post(
     "/image_search/",
-    summary="Search images by another image",
-    status_code=status.HTTP_501_NOT_IMPLEMENTED,
+    summary="Search images by image",
+    status_code=status.HTTP_200_OK,
 )
-def image_search():
-    return "Not implemented"
+async def image_search(image: UploadFile = File(...)):
+    urls = await ctx.http_client.post(
+        f"{ctx.image_search_url}/image_search/",
+        files={"image": (image.file)},
+        timeout=None,
+    )
+
+    return urls.json()
 
 
 @app.get("/", summary="Check availability")

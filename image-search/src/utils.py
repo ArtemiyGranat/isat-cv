@@ -11,14 +11,14 @@ def extract_features(image):
     return features.squeeze(0)
 
 
-def similar_images(target_file, amount=10):
+async def similar_images(target_file, amount=10):
     ctx.model.eval()
 
     target_image = Image.open(target_file).convert("RGB")
     target_features = extract_features(target_image)
     similarities = []
 
-    images = ctx.image_repo.get_many()
+    images = await ctx.image_repo.get_many()
     for image in images:
         features = torch.load(f"{ctx.tensors_dir}/{image.id}.pt")
 
