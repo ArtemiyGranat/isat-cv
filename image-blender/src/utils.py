@@ -7,9 +7,8 @@ from PIL import Image
 
 def process_images(first, second):
     images = [Image.open(img) for img in [first, second]]
-    np_imgs = [np.array(img) for img in images]
 
-    return [img[:, :, [2, 1, 0]] for img in np_imgs]
+    return [np.array(img)[:, :, [2, 1, 0]] for img in images]
 
 
 def generate_gaussian_pyramid(img, levels):
@@ -38,7 +37,7 @@ def generate_laplacian_pyramid(gaussian_pyramid):
 def blend_pyramids(lap_pyramid1, lap_pyramid2):
     blended_pyramid = []
     for lap1, lap2 in zip(lap_pyramid1, lap_pyramid2):
-        rows, cols, dpt = lap1.shape
+        cols = lap1.shape[1]
         laplacian_blended = np.hstack(
             (lap1[:, 0 : int(cols / 2)], lap2[:, int(cols / 2) :])
         )
@@ -82,5 +81,4 @@ def blend_images(
 
     blended_image = reconstruct_from_pyramid(blended_pyramid)
 
-    # TODO: return to backend and visualize result
-    cv2.imwrite("blended_image.jpg", blended_image)
+    return Image.fromarray(blended_image)
