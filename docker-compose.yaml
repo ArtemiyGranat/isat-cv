@@ -30,7 +30,6 @@ services:
       - ./config:/app/config
       - ./color-search/src:/app/src
       - ./db:/app/db
-      - ./img:/app/img
   image-processer:
     container_name: image_processer
     build: image-processer

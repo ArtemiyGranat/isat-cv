@@ -29,6 +29,7 @@ logger = logging.getLogger("app")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
+        # TODO: add origins to context & config and its not working btw
         "http://localhost:8000",
         "http://127.0.0.1:8000",
         "http://0.0.0.0:8000",
