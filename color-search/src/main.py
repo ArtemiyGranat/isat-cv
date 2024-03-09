@@ -1,5 +1,6 @@
 import logging
 from contextlib import asynccontextmanager
+from typing import List
 
 from cs_context import ctx
 from fastapi import FastAPI, File, HTTPException, UploadFile, status
@@ -45,7 +46,7 @@ app.add_middleware(
 )
 async def color_search(
     color_model: str, image: UploadFile = File(...), amount: int = 10
-) -> None:
+) -> List[str]:
     if color_model not in ["hsv", "lab"]:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
