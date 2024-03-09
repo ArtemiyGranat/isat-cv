@@ -38,7 +38,7 @@ app.add_middleware(
     responses={200: {"content": {"image/png": {}}}},
     response_class=Response,
 )
-async def color_search(
+async def blend(
     first_image: UploadFile = File(...), second_image: UploadFile = File(...)
 ) -> None:
     blended_image = blend_images(first_image.file, second_image.file)

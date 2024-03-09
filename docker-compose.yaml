@@ -32,7 +32,7 @@ services:
       - ./db:/app/db
       - ./img:/app/img
   image-processer:
-    container_name: image-processer
+    container_name: image_processer
     build: image-processer
     volumes:
       - ./config:/app/config
@@ -41,7 +41,7 @@ services:
       - ./img:/app/img
       - ./processed_img:/app/processed_img
   image-blender:
-    container_name: image-blender
+    container_name: image_blender
     build: image-blender
     ports:
       - "8003:8000"

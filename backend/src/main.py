@@ -3,7 +3,7 @@ import os
 from contextlib import asynccontextmanager
 
 import httpx
-from fastapi import FastAPI, File, UploadFile, status
+from fastapi import FastAPI, File, Response, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
 
 from shared.logger import configure_logging
@@ -82,18 +82,22 @@ async def color_search(color_model: str, image: UploadFile = File(...)):
     "/blend/",
     summary="Blend two images using Laplacian and Gaussian pyramids",
     status_code=status.HTTP_200_OK,
+    responses={200: {"content": {"image/png": {}}}},
+    response_class=Response,
 )
 async def blend(
     first_image: UploadFile = File(...), second_image: UploadFile = File(...)
 ):
-    await ctx.http_client.post(
-        f"{ctx.image_blender_url}/blend",
+    blended_image = await ctx.http_client.post(
+        f"{ctx.image_blender_url}/blend/",
         files={
-            "first_file": (first_image.file),
-            "second_file": (second_image.file),
+            "first_image": (first_image.file),
+            "second_image": (second_image.file),
         },
         timeout=None,
     )
+
+    return Response(content=blended_image.content, media_type="image/jpg")
 
 
 @app.get(
