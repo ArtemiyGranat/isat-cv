@@ -4,7 +4,13 @@ import cv2
 import numpy as np
 from PIL import Image
 
+from shared.resources import SharedResources
+
 # TODO: Refactor? This file looks huge and untidy
+
+PYRAMIDS_LEVELS = SharedResources(
+    "config/config.json"
+).img_blender.pyramids_levels
 
 
 def process_images(first, second):
@@ -71,11 +77,8 @@ def blend_images(
         interpolation=cv2.INTER_LINEAR,
     )
 
-    # TODO: Add to context and config
-    pyramids_levels = 3
-
     gaussian_pyramids = [
-        generate_gaussian_pyramid(img, pyramids_levels) for img in imgs
+        generate_gaussian_pyramid(img, PYRAMIDS_LEVELS) for img in imgs
     ]
     laplacian_pyramids = [
         generate_laplacian_pyramid(pyr) for pyr in gaussian_pyramids

@@ -26,6 +26,10 @@ class ImgProcesserSettings(BaseModel):
     img_dir: str
 
 
+class ImgBlenderSettings(BaseModel):
+    pyramids_levels: int
+
+
 # TODO: blender settings
 
 
@@ -33,3 +37,4 @@ class SharedResources(JSONSettings):
     sqlite_creds: DatabaseCredentials
     scraper: ScraperSettings
     img_processer: ImgProcesserSettings
+    img_blender: ImgBlenderSettings
