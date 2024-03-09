@@ -7,6 +7,8 @@ from shared.db import SqliteRepository, gen_sqlite_address
 from shared.entities import Image
 from shared.resources import SharedResources
 
+# TODO: config/config.json to shared/resources.py constant
+
 
 class Context:
     def __init__(self) -> None:

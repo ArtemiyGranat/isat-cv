@@ -31,6 +31,9 @@ app.add_middleware(
 )
 
 
+# TODO: routes.py in shared?
+
+
 @app.post(
     "/blend/",
     summary="Blend two images using Laplacian and Gaussian pyramids",
@@ -42,6 +45,8 @@ async def blend(
     first_image: UploadFile = File(...), second_image: UploadFile = File(...)
 ) -> None:
     blended_image = blend_images(first_image.file, second_image.file)
+
+    # TODO: Find a way to do this more elegant
     byte_arr = io.BytesIO()
     blended_image.save(byte_arr, format="PNG")
     byte_arr.seek(0)

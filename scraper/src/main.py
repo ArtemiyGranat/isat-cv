@@ -65,6 +65,9 @@ async def scrape(page: int, amount: int) -> None:
     logger.info(f"Scraped {amount} images")
 
 
+# TODO: hello -> healthcheck
+
+
 @app.get("/", summary="Check availability")
 async def hello():
     return "Scraper is running!"

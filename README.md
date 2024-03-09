@@ -2,6 +2,8 @@
 
 ## Usage
 
+// TODO: update usage commands
+
 ```
 sh init.sh
 docker-compose up

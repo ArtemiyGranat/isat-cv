@@ -4,6 +4,8 @@ import cv2
 import numpy as np
 from PIL import Image
 
+# TODO: Refactor? This file looks huge and untidy
+
 
 def process_images(first, second):
     images = [Image.open(img) for img in [first, second]]
@@ -34,9 +36,9 @@ def generate_laplacian_pyramid(gaussian_pyramid):
     return laplacian_pyramid
 
 
-def blend_pyramids(lap_pyramid1, lap_pyramid2):
+def blend_pyramids(pyramids):
     blended_pyramid = []
-    for lap1, lap2 in zip(lap_pyramid1, lap_pyramid2):
+    for lap1, lap2 in pyramids:
         cols = lap1.shape[1]
         laplacian_blended = np.hstack(
             (lap1[:, 0 : int(cols / 2)], lap2[:, int(cols / 2) :])
@@ -72,13 +74,13 @@ def blend_images(
     # TODO: Add to context and config
     pyramids_levels = 3
 
-    gaussian_pyramid1 = generate_gaussian_pyramid(imgs[0], pyramids_levels)
-    gaussian_pyramid2 = generate_gaussian_pyramid(imgs[1], pyramids_levels)
-    laplacian_pyramid1 = generate_laplacian_pyramid(gaussian_pyramid1)
-    laplacian_pyramid2 = generate_laplacian_pyramid(gaussian_pyramid2)
-
-    blended_pyramid = blend_pyramids(laplacian_pyramid1, laplacian_pyramid2)
-
+    gaussian_pyramids = [
+        generate_gaussian_pyramid(img, pyramids_levels) for img in imgs
+    ]
+    laplacian_pyramids = [
+        generate_laplacian_pyramid(pyr) for pyr in gaussian_pyramids
+    ]
+    blended_pyramid = blend_pyramids(laplacian_pyramids)
     blended_image = reconstruct_from_pyramid(blended_pyramid)
 
     return Image.fromarray(blended_image)

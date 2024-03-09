@@ -38,6 +38,8 @@ dev-dependencies = [
 [tool.hatch.metadata]
 allow-direct-references = true
 
+# TODO: format file
+
 [tool.hatch.build.targets.wheel]
 packages=["backend/src", "scraper/src", "image-processer/src", "image-blender/src", "color-search/src", "shared"]
 

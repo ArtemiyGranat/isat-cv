@@ -26,6 +26,9 @@ class ImgProcesserSettings(BaseModel):
     img_dir: str
 
 
+# TODO: blender settings
+
+
 class SharedResources(JSONSettings):
     sqlite_creds: DatabaseCredentials
     scraper: ScraperSettings
