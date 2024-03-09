@@ -97,7 +97,7 @@ async def blend(
         timeout=None,
     )
 
-    return Response(content=blended_image.content, media_type="image/jpg")
+    return Response(content=blended_image.content, media_type="image/png")
 
 
 @app.get(

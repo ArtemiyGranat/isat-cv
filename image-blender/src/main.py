@@ -43,9 +43,9 @@ async def blend(
 ) -> None:
     blended_image = blend_images(first_image.file, second_image.file)
     byte_arr = io.BytesIO()
-    blended_image.save(byte_arr, format="JPEG")
+    blended_image.save(byte_arr, format="PNG")
     byte_arr.seek(0)
-    return Response(content=byte_arr.getvalue(), media_type="image/jpg")
+    return Response(content=byte_arr.getvalue(), media_type="image/png")
 
 
 @app.get("/", summary="Check availability")
