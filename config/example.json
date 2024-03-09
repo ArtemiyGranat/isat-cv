@@ -44,7 +44,8 @@
     },
     "img_processer": {
         "interval": 30,
-        "img_dir": "processed_img"
+        "img_dir": "processed_img",
+        "model": "unet"
     },
     "img_blender": {
         "pyramids_levels": 3

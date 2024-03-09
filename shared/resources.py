@@ -24,13 +24,11 @@ class ScraperSettings(BaseModel):
 class ImgProcesserSettings(BaseModel):
     interval: int
     img_dir: str
+    model: str
 
 
 class ImgBlenderSettings(BaseModel):
     pyramids_levels: int
-
-
-# TODO: blender settings
 
 
 class SharedResources(JSONSettings):
@@ -38,3 +36,6 @@ class SharedResources(JSONSettings):
     scraper: ScraperSettings
     img_processer: ImgProcesserSettings
     img_blender: ImgBlenderSettings
+
+
+CONFIG_PATH = "config/config.json"

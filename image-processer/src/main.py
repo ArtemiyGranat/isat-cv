@@ -12,14 +12,14 @@ import shared.entities as entities
 from shared.color import ColorModel, compute_mean_color
 from shared.db import SqliteRepository, gen_sqlite_address
 from shared.logger import configure_logging
-from shared.resources import SharedResources
+from shared.resources import CONFIG_PATH, SharedResources
 
 logger = logging.getLogger("app")
 
 
 class Context:
     def __init__(self) -> None:
-        shared_resources = SharedResources("config/config.json")
+        shared_resources = SharedResources(CONFIG_PATH)
 
         self.config = shared_resources.img_processer
         self.orig_img_dir = shared_resources.scraper.img_dir
@@ -29,8 +29,7 @@ class Context:
         )
         self.image_repo = SqliteRepository(self.sqlite, entities.Image)
 
-        self.model = "unet"
-        self.session = rembg.new_session(self.model)
+        self.session = rembg.new_session(self.config.model)
 
     async def init_db(self) -> None:
         await self.sqlite.connect()

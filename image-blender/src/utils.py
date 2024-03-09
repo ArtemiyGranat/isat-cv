@@ -4,13 +4,11 @@ import cv2
 import numpy as np
 from PIL import Image
 
-from shared.resources import SharedResources
+from shared.resources import CONFIG_PATH, SharedResources
 
 # TODO: Refactor? This file looks huge and untidy
 
-PYRAMIDS_LEVELS = SharedResources(
-    "config/config.json"
-).img_blender.pyramids_levels
+PYRAMIDS_LEVELS = SharedResources(CONFIG_PATH).img_blender.pyramids_levels
 
 
 def process_images(first, second):
