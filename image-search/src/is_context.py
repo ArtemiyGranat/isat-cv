@@ -25,6 +25,8 @@ class Context:
         # TODO: it shouldn't be just models.resnet18, save it or idk
         # FIXME: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
         self.model = models.resnet18(pretrained=True)
+        self.model.eval()
+
         self.transform = transforms.Compose(
             [
                 transforms.Resize((224, 224)),

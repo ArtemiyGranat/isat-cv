@@ -77,7 +77,6 @@ def save_image_search_tensors(ctx: Context, img: Image, img_id: str) -> None:
         features = ctx.image_search_model(transformed_image)
 
     torch.save(features.squeeze(0), f"{ctx.img_tensors_dir}/{img_id}.pt")
-    logger.info(f"Saved image tensors to {ctx.img_tensors_dir}/{img_id}.pt")
 
 
 def save_text_search_tensors(ctx: Context, img: Image, img_id: str) -> None:
@@ -88,7 +87,6 @@ def save_text_search_tensors(ctx: Context, img: Image, img_id: str) -> None:
         features = ctx.text_search_model.encode_image(transformed_image)
 
     torch.save(features, f"{ctx.text_tensors_dir}/{img_id}.pt")
-    logger.info(f"Saved text tensors to {ctx.text_tensors_dir}/{img_id}.pt")
 
 
 async def process_image(ctx: Context, image: entities.Image) -> None:
@@ -142,6 +140,8 @@ async def process_images(ctx: Context) -> None:
 
 async def main():
     ctx = Context()
+    ctx.image_search_model.eval()
+    ctx.text_search_model.eval()
 
     os.makedirs(ctx.config.img_dir, exist_ok=True)
     os.makedirs(ctx.config.img_search_tensors_dir, exist_ok=True)
