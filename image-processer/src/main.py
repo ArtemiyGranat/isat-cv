@@ -3,6 +3,7 @@ import logging
 import os
 from typing import List
 
+import clip
 import rembg
 import torch
 import torchvision.models as models
@@ -23,11 +24,14 @@ logger = logging.getLogger("app")
 class Context:
     def __init__(self) -> None:
         shared_resources = SharedResources(CONFIG_PATH)
+        model_names = shared_resources.model_names
 
         self.config = shared_resources.img_processer
 
-        self.tensors_dir = self.config.tensors_dir
-        self.session = rembg.new_session(self.config.rembg_model)
+        # TODO: vector storage
+        self.img_tensors_dir = self.config.img_search_tensors_dir
+        self.text_tensors_dir = self.config.text_search_tensors_dir
+        self.session = rembg.new_session(model_names.rembg_model)
 
         self.orig_img_dir = shared_resources.scraper.img_dir
         self.orig_img_ext = shared_resources.scraper.img_save_extension
@@ -37,7 +41,7 @@ class Context:
         )
         self.image_repo = SqliteRepository(self.sqlite, entities.Image)
 
-        self.transform = transforms.Compose(
+        self.image_search_transform = transforms.Compose(
             [
                 transforms.Resize((224, 224)),
                 transforms.ToTensor(),
@@ -46,7 +50,12 @@ class Context:
                 ),
             ]
         )
-        self.model = models.resnet18(pretrained=True)
+        self.image_search_model = models.resnet18(pretrained=True)
+
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.text_search_model, self.text_search_preprocess = clip.load(
+            model_names.clip_model, device=self.device
+        )
 
     async def init_db(self) -> None:
         await self.sqlite.connect()
@@ -61,6 +70,24 @@ class Context:
         )
 
 
+def save_image_search_tensors(ctx: Context, img: Image, img_id: str) -> None:
+    transformed_image = ctx.image_search_transform(img).unsqueeze(0)
+    with torch.no_grad():
+        features = ctx.image_search_model(transformed_image)
+
+    torch.save(features.squeeze(0), f"{ctx.img_tensors_dir}/{img_id}.pt")
+
+
+def save_text_search_tensors(ctx: Context, img: Image, img_id: str) -> None:
+    transformed_image = (
+        ctx.text_search_preprocess(img).unsqueeze(0).to(ctx.device)
+    )
+    with torch.no_grad():
+        features = ctx.text_search_model.encode_image(transformed_image)
+
+    torch.save(features, f"{ctx.text_tensors_dir}/{img_id}.pt")
+
+
 async def process_image(ctx: Context, image: entities.Image) -> None:
     with Image.open(
         f"{ctx.orig_img_dir}/{image.id}.{ctx.orig_img_ext}"
@@ -69,11 +96,8 @@ async def process_image(ctx: Context, image: entities.Image) -> None:
         mean_hsv = compute_mean_color(processed_img, ColorModel.HSV)
         mean_lab = compute_mean_color(processed_img, ColorModel.LAB)
 
-        transformed_image = ctx.transform(orig_img).unsqueeze(0)
-        with torch.no_grad():
-            features = ctx.model(transformed_image)
-        torch.save(features.squeeze(0), f"{ctx.tensors_dir}/{image.id}.pt")
-        logger.info(f"Saved tensor to {ctx.tensors_dir}/{image.id}.pt")
+        save_image_search_tensors(ctx, processed_img.convert("RGB"), image.id)
+        save_text_search_tensors(ctx, processed_img, image.id)
 
         processed_img.save(f"{ctx.config.img_dir}/{image.id}.png")
 
@@ -115,8 +139,12 @@ async def process_images(ctx: Context) -> None:
 
 async def main():
     ctx = Context()
-    if not os.path.exists(ctx.config.img_dir):
-        os.makedirs(ctx.config.img_dir)
+    ctx.image_search_model.eval()
+    ctx.text_search_model.eval()
+
+    os.makedirs(ctx.config.img_dir, exist_ok=True)
+    os.makedirs(ctx.config.img_search_tensors_dir, exist_ok=True)
+    os.makedirs(ctx.config.text_search_tensors_dir, exist_ok=True)
 
     configure_logging()
     await ctx.init_db()

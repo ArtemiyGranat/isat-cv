@@ -18,11 +18,15 @@ class Context:
         self.image_repo = SqliteRepository(self.sqlite, Image)
 
         # TODO: move tensors_dir to somewhere else? looks not good
-        self.tensors_dir = shared_resources.img_processer.tensors_dir
+        self.tensors_dir = (
+            shared_resources.img_processer.img_search_tensors_dir
+        )
 
         # TODO: it shouldn't be just models.resnet18, save it or idk
         # FIXME: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
         self.model = models.resnet18(pretrained=True)
+        self.model.eval()
+
         self.transform = transforms.Compose(
             [
                 transforms.Resize((224, 224)),
