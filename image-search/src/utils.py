@@ -20,9 +20,12 @@ async def similar_images(target_file, amount=10):
 
     images = await ctx.image_repo.get_many(field="processed", value=1)
     for image in images:
-        features = torch.load(
-            f"{ctx.tensors_dir}/{image.id}.pt", weights_only=True
-        )
+        img = Image.open(f"processed_img/{image.id}.png").convert("RGB")
+        features = extract_features(img)
+        # FIXME: something wrong with save/load process
+        # features = torch.load(
+        #     f"{ctx.tensors_dir}/{image.id}.pt", weights_only=True
+        # )
 
         similarity = 1 - cosine(target_features.numpy(), features.numpy())
         similarities.append((similarity, image.url))

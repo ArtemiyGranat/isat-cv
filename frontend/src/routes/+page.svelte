@@ -18,6 +18,10 @@
   let isLoadingImage = false;
   let imageSearchResponse = [];
 
+  let isLoadingText = false;
+  let textSearchQuery = '';
+  let textSearchResponse = [];
+
   const scrape = async () => {
     if (!startPage || !amount) {
       alert('Please fill in all fields.');
@@ -105,6 +109,19 @@
       isLoadingImage= false;
     }
   };
+
+  const textSearch = async () => {
+    isLoadingText = true;
+    try {
+      const url = `${BACKEND_URL}/text_search/?query=${textSearchQuery}`;
+      const response = await fetch(url, { method: 'POST' });
+      textSearchResponse = await response.json();
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      isLoadingText = false;
+    }
+  };
 </script>
 
 <main>
@@ -165,6 +182,20 @@
   </button>
   <div class="image-grid">
     {#each imageSearchResponse as imageUrl}
+        <img src={imageUrl} alt="Image" />
+    {/each}
+  </div>
+
+  <h1>Text search</h1>
+  <h3>Enter query, then click on "Search" button</h3>
+  <div class="input-group">
+    <input type="text" id="textSearchQuery" bind:value={textSearchQuery} placeholder="Enter query" />
+  </div>
+  <button on:click={textSearch} disabled={isLoadingText}>
+    {isLoadingText ? 'Loading...' : 'Find 10 images that match your request'}
+  </button>
+  <div class="image-grid">
+    {#each textSearchResponse as imageUrl}
         <img src={imageUrl} alt="Image" />
     {/each}
   </div>

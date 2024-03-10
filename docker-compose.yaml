@@ -60,6 +60,7 @@ services:
       - ./config:/app/config
       - ./image-search/src:/app/src
       - ./db:/app/db
+      - ./processed_img:/app/processed_img
       - ./img_search_tensors:/app/img_search_tensors
   text-search:
     container_name: text_search

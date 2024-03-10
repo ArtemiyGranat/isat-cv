@@ -74,9 +74,9 @@ class Context:
 def save_image_search_tensors(ctx: Context, img: Image, img_id: str) -> None:
     transformed_image = ctx.image_search_transform(img).unsqueeze(0)
     with torch.no_grad():
-        features = ctx.image_search_model(transformed_image).squeeze(0)
+        features = ctx.image_search_model(transformed_image)
 
-    torch.save(features, f"{ctx.img_tensors_dir}/{img_id}.pt")
+    torch.save(features.squeeze(0), f"{ctx.img_tensors_dir}/{img_id}.pt")
     logger.info(f"Saved image tensors to {ctx.img_tensors_dir}/{img_id}.pt")
 
 
@@ -99,8 +99,8 @@ async def process_image(ctx: Context, image: entities.Image) -> None:
         mean_hsv = compute_mean_color(processed_img, ColorModel.HSV)
         mean_lab = compute_mean_color(processed_img, ColorModel.LAB)
 
-        save_image_search_tensors(ctx, orig_img, image.id)
-        save_text_search_tensors(ctx, orig_img, image.id)
+        save_image_search_tensors(ctx, processed_img.convert("RGB"), image.id)
+        save_text_search_tensors(ctx, processed_img, image.id)
 
         processed_img.save(f"{ctx.config.img_dir}/{image.id}.png")
 
