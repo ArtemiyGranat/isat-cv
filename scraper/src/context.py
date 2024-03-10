@@ -5,12 +5,12 @@ from databases import Database
 
 from shared.db import SqliteRepository, gen_sqlite_address
 from shared.entities import Image
-from shared.resources import SharedResources
+from shared.resources import CONFIG_PATH, SharedResources
 
 
 class Context:
     def __init__(self) -> None:
-        shared_resources = SharedResources("config/config.json")
+        shared_resources = SharedResources(CONFIG_PATH)
 
         self.config = shared_resources.scraper
 

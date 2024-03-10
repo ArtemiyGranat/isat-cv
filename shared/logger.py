@@ -1,8 +1,10 @@
 import json
 from logging.config import dictConfig
 
+from shared.resources import CONFIG_PATH
+
 
 def configure_logging() -> None:
-    with open("config/config.json") as f:
+    with open(CONFIG_PATH) as f:
         d = json.load(f)
         dictConfig(d["logger"])

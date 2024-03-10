@@ -66,5 +66,5 @@ async def scrape(page: int, amount: int) -> None:
 
 
 @app.get("/", summary="Check availability")
-async def hello():
+async def healthcheck():
     return "Scraper is running!"

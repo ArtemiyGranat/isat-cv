@@ -12,6 +12,16 @@
   let colorSearchResponse = [];
   let colorModel = -1;
 
+  let isLoadingBlend = false;
+  let blendResponse = [];
+
+  let isLoadingImage = false;
+  let imageSearchResponse = [];
+
+  let isLoadingText = false;
+  let textSearchQuery = '';
+  let textSearchResponse = [];
+
   const scrape = async () => {
     if (!startPage || !amount) {
       alert('Please fill in all fields.');
@@ -46,17 +56,77 @@
       const url = `${BACKEND_URL}/color_search/${colorModelTxt}`;
       const response = await fetch(url, { method: 'POST', body: formData });
       colorSearchResponse = await response.json();
-      console.log(colorSearchResponse)
     } catch (error) {
       console.error('Error:', error);
     } finally {
       isLoadingColor = false;
     }
   };
+
+  const blend = async () => {
+    isLoadingBlend = true;
+    try {
+      const blendImage1 = document.getElementById("blendImage1");
+      const blendImage2 = document.getElementById("blendImage2");
+      if (blendImage1.files.length === 0 || blendImage2.files.length == 0) {
+        alert('Please upload two images');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('first_image', blendImage1.files[0]);
+      formData.append('second_image', blendImage2.files[0]);
+
+      const url = `${BACKEND_URL}/blend/`;
+      const response = await fetch(url, { method: 'POST', body: formData });
+      const blob = await response.blob();
+      blendResponse = [URL.createObjectURL(blob)]
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      isLoadingBlend = false;
+    }
+  };
+
+  const imageSearch = async () => {
+    isLoadingImage = true;
+    try {
+      const colorSearchFile = document.getElementById("imageSearchFile");
+      if (imageSearchFile.files.length === 0) {
+        alert('Please upload a file');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('image', colorSearchFile.files[0]);
+
+      const url = `${BACKEND_URL}/image_search/`;
+      const response = await fetch(url, { method: 'POST', body: formData });
+      imageSearchResponse = await response.json();
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      isLoadingImage= false;
+    }
+  };
+
+  const textSearch = async () => {
+    isLoadingText = true;
+    try {
+      const url = `${BACKEND_URL}/text_search/?query=${textSearchQuery}`;
+      const response = await fetch(url, { method: 'POST' });
+      textSearchResponse = await response.json();
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      isLoadingText = false;
+    }
+  };
 </script>
 
 <main>
   <h1>Educational Project</h1>
+
   <h1>Scraper</h1>
   <h3>Fill in start page and amount of images to be scraped, then click on "Scrape" button</h3>
   <div class="input-group">
@@ -66,6 +136,7 @@
   <button on:click={scrape} disabled={isLoadingScrape}>
     {isLoadingScrape ? 'Loading...' : 'Scrape'}
   </button>
+
   <h1>Color search</h1>
   <h3>Upload image and select color model (LAB or HSV), then click on "Search" button</h3>
   <div class="input-group">
@@ -86,7 +157,48 @@
     {/each}
   </div>
     
+  <h1>Image blending using Laplacian and Gaussian pyramids</h1>
+  <h3>Upload two images, then click on "Blend" button</h3>
+  <div class="input-group">
+     <input type="file" id="blendImage1" accept="image/*" />
+     <input type="file" id="blendImage2" accept="image/*" />
+  </div>
+  <button on:click={blend} disabled={isLoadingBlend}>
+    {isLoadingColor ? 'Loading...' : 'Blend images'}
+  </button>
+  <div class="blended-image">
+    {#each blendResponse as imageUrl}
+        <img src={imageUrl} alt="Blended image" />
+    {/each}
+  </div>
 
+  <h1>Image search</h1>
+  <h3>Upload image, then click on "Search" button</h3>
+  <div class="input-group">
+     <input type="file" id="imageSearchFile" accept="image/*" />
+  </div>
+  <button on:click={imageSearch} disabled={isLoadingImage}>
+    {isLoadingColor ? 'Loading...' : 'Search for 10 similar images'}
+  </button>
+  <div class="image-grid">
+    {#each imageSearchResponse as imageUrl}
+        <img src={imageUrl} alt="Image" />
+    {/each}
+  </div>
+
+  <h1>Text search</h1>
+  <h3>Enter query, then click on "Search" button</h3>
+  <div class="input-group">
+    <input type="text" id="textSearchQuery" bind:value={textSearchQuery} placeholder="Enter query" />
+  </div>
+  <button on:click={textSearch} disabled={isLoadingText}>
+    {isLoadingText ? 'Loading...' : 'Find 10 images that match your request'}
+  </button>
+  <div class="image-grid">
+    {#each textSearchResponse as imageUrl}
+        <img src={imageUrl} alt="Image" />
+    {/each}
+  </div>
 </main>
 
 <style>
@@ -163,8 +275,19 @@
     gap: 10px;
     padding: 10px;
   }
+
   .image-grid img {
     width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+
+  .blended-image {
+    padding: 10px;
+  }
+
+  .blended-image img {
+    width: 30%;
     height: auto;
     object-fit: cover;
   }

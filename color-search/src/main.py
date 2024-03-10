@@ -1,5 +1,6 @@
 import logging
 from contextlib import asynccontextmanager
+from typing import List
 
 from cs_context import ctx
 from fastapi import FastAPI, File, HTTPException, UploadFile, status
@@ -14,11 +15,9 @@ from shared.logger import configure_logging
 async def lifespan(_: FastAPI):
     configure_logging()
     await ctx.init_db()
-    await ctx.image_repo.create_table()
     try:
         yield
     finally:
-        await ctx.close_client()
         await ctx.dispose_db()
 
 
@@ -28,6 +27,7 @@ logger = logging.getLogger("app")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
+        # TODO: add origins to context & config and its not working btw
         "http://localhost:8000",
         "http://127.0.0.1:8000",
         "http://0.0.0.0:8000",
@@ -45,7 +45,7 @@ app.add_middleware(
 )
 async def color_search(
     color_model: str, image: UploadFile = File(...), amount: int = 10
-) -> None:
+) -> List[str]:
     if color_model not in ["hsv", "lab"]:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
