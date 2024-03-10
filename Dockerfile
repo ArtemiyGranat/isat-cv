@@ -22,6 +22,7 @@ WORKDIR $WD_NAME
 ENV PATH="$WD_NAME/.venv/bin:$PATH"
 ENV PYTHONPATH="$PYTHONPATH:$WD_NAME/.venv/lib/python3.11/site-packages"
 
+# FIXME: Need to rebuild image every time files in shared/ directory are changed
 COPY shared $WD_NAME/shared
 COPY --from=builder /opt/rye /opt/rye
 COPY --from=builder $WD_NAME/.venv .venv

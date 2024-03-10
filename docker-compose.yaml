@@ -6,6 +6,10 @@ services:
       - "8000:8000"
     environment:
       - SCRAPER_URL=http://scraper:8000
+      - COLOR_SEARCH_URL=http://color_search:8000
+      - IMAGE_BLENDER_URL=http://image_blender:8000
+      - IMAGE_SEARCH_URL=http://image_search:8000
+      - TEXT_SEARCH_URL=http://text_search:8000
     volumes:
       - ./config:/app/config
       - ./backend/src:/app/src
@@ -19,8 +23,17 @@ services:
       - ./scraper/src:/app/src
       - ./db:/app/db
       - ./img:/app/img
+  color_search:
+    container_name: color_search
+    build: color-search
+    ports:
+      - "8002:8000"
+    volumes:
+      - ./config:/app/config
+      - ./color-search/src:/app/src
+      - ./db:/app/db
   image-processer:
-    container_name: image-processer
+    container_name: image_processer
     build: image-processer
     volumes:
       - ./config:/app/config
@@ -28,3 +41,34 @@ services:
       - ./db:/app/db
       - ./img:/app/img
       - ./processed_img:/app/processed_img
+      - ./img_search_tensors:/app/img_search_tensors
+      - ./text_search_tensors:/app/text_search_tensors
+  image-blender:
+    container_name: image_blender
+    build: image-blender
+    ports:
+      - "8003:8000"
+    volumes:
+      - ./config:/app/config
+      - ./image-blender/src:/app/src
+  image-search:
+    container_name: image_search
+    build: image-search
+    ports:
+      - "8004:8000"
+    volumes:
+      - ./config:/app/config
+      - ./image-search/src:/app/src
+      - ./db:/app/db
+      - ./processed_img:/app/processed_img
+      - ./img_search_tensors:/app/img_search_tensors
+  text-search:
+    container_name: text_search
+    build: text-search
+    ports:
+      - "8005:8000"
+    volumes:
+      - ./config:/app/config
+      - ./text-search/src:/app/src
+      - ./db:/app/db
+      - ./text_search_tensors:/app/text_search_tensors

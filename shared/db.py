@@ -91,7 +91,9 @@ class SqliteRepository(AbstractRepository):
     async def create_table(self) -> None:
         await self._db.execute(
             query=f"""CREATE TABLE IF NOT EXISTS {self._table_name}
-                (id TEXT, url TEXT, hash TEXT, processed INTEGER);"""
+                (id TEXT, url TEXT, hash TEXT, mean_h REAL, mean_s REAL,
+                 mean_v REAL, mean_l REAL, mean_a REAL, mean_b REAL,
+                 processed INTEGER);"""
         )
 
     async def get_many_from_list(self, field, values) -> List[Entity]:

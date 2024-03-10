@@ -15,9 +15,11 @@ async def lifespan(_: FastAPI):
     configure_logging()
     await ctx.init_db()
     await ctx.image_repo.create_table()
-    yield
-    await ctx.close_client()
-    await ctx.dispose_db()
+    try:
+        yield
+    finally:
+        await ctx.close_client()
+        await ctx.dispose_db()
 
 
 app = FastAPI(lifespan=lifespan)
@@ -64,5 +66,5 @@ async def scrape(page: int, amount: int) -> None:
 
 
 @app.get("/", summary="Check availability")
-async def hello():
+async def healthcheck():
     return "Scraper is running!"
