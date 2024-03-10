@@ -42,7 +42,7 @@ def generate_laplacian_pyramid(gaussian_pyramid):
 
 def blend_pyramids(pyramids):
     blended_pyramid = []
-    for lap1, lap2 in pyramids:
+    for lap1, lap2 in zip(*pyramids):
         cols = lap1.shape[1]
         laplacian_blended = np.hstack(
             (lap1[:, 0 : int(cols / 2)], lap2[:, int(cols / 2) :])

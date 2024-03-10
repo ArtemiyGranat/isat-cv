@@ -8,6 +8,8 @@ services:
       - SCRAPER_URL=http://scraper:8000
       - COLOR_SEARCH_URL=http://color_search:8000
       - IMAGE_BLENDER_URL=http://image_blender:8000
+      - IMAGE_SEARCH_URL=http://image_search:8000
+      - TEXT_SEARCH_URL=http://text_search:8000
     volumes:
       - ./config:/app/config
       - ./backend/src:/app/src
@@ -39,6 +41,8 @@ services:
       - ./db:/app/db
       - ./img:/app/img
       - ./processed_img:/app/processed_img
+      - ./img_search_tensors:/app/img_search_tensors
+      - ./text_search_tensors:/app/text_search_tensors
   image-blender:
     container_name: image_blender
     build: image-blender
@@ -47,3 +51,24 @@ services:
     volumes:
       - ./config:/app/config
       - ./image-blender/src:/app/src
+  image-search:
+    container_name: image_search
+    build: image-search
+    ports:
+      - "8004:8000"
+    volumes:
+      - ./config:/app/config
+      - ./image-search/src:/app/src
+      - ./db:/app/db
+      - ./processed_img:/app/processed_img
+      - ./img_search_tensors:/app/img_search_tensors
+  text-search:
+    container_name: text_search
+    build: text-search
+    ports:
+      - "8005:8000"
+    volumes:
+      - ./config:/app/config
+      - ./text-search/src:/app/src
+      - ./db:/app/db
+      - ./text_search_tensors:/app/text_search_tensors
