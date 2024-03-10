@@ -15,6 +15,9 @@
   let isLoadingBlend = false;
   let blendResponse = [];
 
+  let isLoadingImage = false;
+  let imageSearchResponse = [];
+
   const scrape = async () => {
     if (!startPage || !amount) {
       alert('Please fill in all fields.');
@@ -49,7 +52,6 @@
       const url = `${BACKEND_URL}/color_search/${colorModelTxt}`;
       const response = await fetch(url, { method: 'POST', body: formData });
       colorSearchResponse = await response.json();
-      console.log(colorSearchResponse)
     } catch (error) {
       console.error('Error:', error);
     } finally {
@@ -79,6 +81,28 @@
       console.error('Error:', error);
     } finally {
       isLoadingBlend = false;
+    }
+  };
+
+  const imageSearch = async () => {
+    isLoadingImage = true;
+    try {
+      const colorSearchFile = document.getElementById("imageSearchFile");
+      if (imageSearchFile.files.length === 0) {
+        alert('Please upload a file');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('image', colorSearchFile.files[0]);
+
+      const url = `${BACKEND_URL}/image_search/`;
+      const response = await fetch(url, { method: 'POST', body: formData });
+      imageSearchResponse = await response.json();
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      isLoadingImage= false;
     }
   };
 </script>
@@ -128,6 +152,20 @@
   <div class="blended-image">
     {#each blendResponse as imageUrl}
         <img src={imageUrl} alt="Blended image" />
+    {/each}
+  </div>
+
+  <h1>Image search</h1>
+  <h3>Upload image, then click on "Search" button</h3>
+  <div class="input-group">
+     <input type="file" id="imageSearchFile" accept="image/*" />
+  </div>
+  <button on:click={imageSearch} disabled={isLoadingImage}>
+    {isLoadingColor ? 'Loading...' : 'Search for 10 similar images'}
+  </button>
+  <div class="image-grid">
+    {#each imageSearchResponse as imageUrl}
+        <img src={imageUrl} alt="Image" />
     {/each}
   </div>
 </main>
