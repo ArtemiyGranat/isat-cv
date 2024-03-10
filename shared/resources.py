@@ -29,6 +29,11 @@ class ImgProcesserSettings(BaseModel):
     text_search_tensors_dir: str
 
 
+class ModelNames(BaseModel):
+    rembg_model: str
+    clip_model: str
+
+
 class ImgBlenderSettings(BaseModel):
     pyramids_levels: int
 
@@ -38,6 +43,7 @@ class SharedResources(JSONSettings):
     scraper: ScraperSettings
     img_processer: ImgProcesserSettings
     img_blender: ImgBlenderSettings
+    model_names: ModelNames
 
 
 CONFIG_PATH = "config/config.json"

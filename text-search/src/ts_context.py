@@ -17,14 +17,15 @@ class Context:
         )
         self.image_repo = SqliteRepository(self.sqlite, Image)
 
-        # TODO: move tensors_dir to somewhere else? looks not good
+        # TODO: vector storage
         self.tensors_dir = (
             shared_resources.img_processer.text_search_tensors_dir
         )
 
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        # FIXME: load from clip_weights folder?
-        self.model, self.preprocess = clip.load("ViT-B/32", device=self.device)
+        self.model, self.preprocess = clip.load(
+            shared_resources.model_names.clip_model, device=self.device
+        )
 
     async def init_db(self) -> None:
         await self.sqlite.connect()

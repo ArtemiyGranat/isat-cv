@@ -24,14 +24,15 @@ logger = logging.getLogger("app")
 class Context:
     def __init__(self) -> None:
         shared_resources = SharedResources(CONFIG_PATH)
+        model_names = shared_resources.model_names
 
         self.config = shared_resources.img_processer
 
+        # TODO: vector storage
         self.img_tensors_dir = self.config.img_search_tensors_dir
         self.text_tensors_dir = self.config.text_search_tensors_dir
-        self.session = rembg.new_session(self.config.rembg_model)
+        self.session = rembg.new_session(model_names.rembg_model)
 
-        # TODO: duplicated class field I guess
         self.orig_img_dir = shared_resources.scraper.img_dir
         self.orig_img_ext = shared_resources.scraper.img_save_extension
 
@@ -52,10 +53,8 @@ class Context:
         self.image_search_model = models.resnet18(pretrained=True)
 
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        # FIXME: load from clip_weights folder?
-        # TODO: add ViT-B/32 to config
         self.text_search_model, self.text_search_preprocess = clip.load(
-            "ViT-B/32", device=self.device
+            model_names.clip_model, device=self.device
         )
 
     async def init_db(self) -> None:
