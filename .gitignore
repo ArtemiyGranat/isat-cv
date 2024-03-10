@@ -17,4 +17,5 @@ config/config.json
 img/
 processed_img/
 db/
-tensors/
+img_search_tensors/
+text_search_tensors/

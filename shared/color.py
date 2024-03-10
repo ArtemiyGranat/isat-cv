@@ -16,6 +16,7 @@ def compute_mean_color(image: Image, color_model: ColorModel):
     np_image = np.array(image)
 
     mask = np_image[..., 3] > 0
+    # TODO: normalized image is better name maybe?
     np_image = np_image[..., :3][mask].reshape(-1, 3) / 255.0
 
     if color_model == ColorModel.LAB:

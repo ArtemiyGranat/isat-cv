@@ -45,7 +45,9 @@
     "img_processer": {
         "interval": 30,
         "img_dir": "processed_img",
-        "rembg_model": "unet"
+        "rembg_model": "unet",
+        "img_search_tensors_dir": "img_search_tensors",
+        "text_search_tensors_dir": "text_search_tensors"
     },
     "img_blender": {
         "pyramids_levels": 3

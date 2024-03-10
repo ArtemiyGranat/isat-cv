@@ -72,11 +72,12 @@ class Context:
 
 
 def save_image_search_tensors(ctx: Context, img: Image, img_id: str) -> None:
-    transformed_image = ctx.transform(img).unsqueeze(0)
+    transformed_image = ctx.image_search_transform(img).unsqueeze(0)
     with torch.no_grad():
         features = ctx.image_search_model(transformed_image).squeeze(0)
 
     torch.save(features, f"{ctx.img_tensors_dir}/{img_id}.pt")
+    logger.info(f"Saved image tensors to {ctx.img_tensors_dir}/{img_id}.pt")
 
 
 def save_text_search_tensors(ctx: Context, img: Image, img_id: str) -> None:
@@ -87,6 +88,7 @@ def save_text_search_tensors(ctx: Context, img: Image, img_id: str) -> None:
         features = ctx.text_search_model.encode_image(transformed_image)
 
     torch.save(features, f"{ctx.text_tensors_dir}/{img_id}.pt")
+    logger.info(f"Saved text tensors to {ctx.text_tensors_dir}/{img_id}.pt")
 
 
 async def process_image(ctx: Context, image: entities.Image) -> None:
@@ -141,9 +143,9 @@ async def process_images(ctx: Context) -> None:
 async def main():
     ctx = Context()
 
-    # FIXME: something is wrong here
-    if not os.path.exists(ctx.config.img_dir):
-        os.makedirs(ctx.config.img_dir)
+    os.makedirs(ctx.config.img_dir, exist_ok=True)
+    os.makedirs(ctx.config.img_search_tensors_dir, exist_ok=True)
+    os.makedirs(ctx.config.text_search_tensors_dir, exist_ok=True)
 
     configure_logging()
     await ctx.init_db()

@@ -41,6 +41,7 @@ class Context:
         self.color_search_url = os.getenv("COLOR_SEARCH_URL")
         self.image_blender_url = os.getenv("IMAGE_BLENDER_URL")
         self.image_search_url = os.getenv("IMAGE_SEARCH_URL")
+        self.text_search_url = os.getenv("TEXT_SEARCH_URL")
 
     async def close_client(self) -> None:
         await self.http_client.aclose()
@@ -103,13 +104,19 @@ async def blend(
     return Response(content=blended_image.content, media_type="image/png")
 
 
-@app.get(
-    "/text_search/{text}",
+@app.post(
+    "/text_search/",
     summary="Search images by text",
-    status_code=status.HTTP_501_NOT_IMPLEMENTED,
+    status_code=status.HTTP_200_OK,
 )
-def text_search():
-    return "Not implemented"
+async def text_search(query: str):
+    urls = await ctx.http_client.post(
+        f"{ctx.text_search_url}/text_search/",
+        params={"query": query},
+        timeout=None,
+    )
+
+    return urls.json()
 
 
 @app.post(
