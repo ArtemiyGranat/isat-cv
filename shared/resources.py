@@ -25,7 +25,8 @@ class ImgProcesserSettings(BaseModel):
     interval: int
     img_dir: str
     rembg_model: str
-    tensors_dir: str
+    img_search_tensors_dir: str
+    text_search_tensors_dir: str
 
 
 class ImgBlenderSettings(BaseModel):
