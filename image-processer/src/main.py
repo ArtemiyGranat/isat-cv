@@ -24,7 +24,7 @@ logger = logging.getLogger("app")
 class Context:
     def __init__(self) -> None:
         shared_resources = SharedResources(CONFIG_PATH)
-        model_names = shared_resources.model_names
+        model_names = shared_resources.ml_model_names
 
         self.config = shared_resources.img_processer
 

@@ -2,7 +2,6 @@ import os
 
 import httpx
 from databases import Database
-from dotenv import load_dotenv
 
 from shared.db import SqliteRepository, gen_sqlite_address
 from shared.entities import Image
@@ -11,8 +10,6 @@ from shared.resources import CONFIG_PATH, SharedResources
 
 class Context:
     def __init__(self) -> None:
-        load_dotenv()
-
         shared_resources = SharedResources(CONFIG_PATH)
 
         self.config = shared_resources.scraper
@@ -36,3 +33,6 @@ class Context:
 
     async def close_client(self) -> None:
         await self.http_client.aclose()
+
+
+ctx = Context()

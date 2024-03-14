@@ -22,7 +22,6 @@ class ScraperSettings(BaseModel):
 class ImgProcesserSettings(BaseModel):
     interval: int
     img_dir: str
-    rembg_model: str
     img_search_tensors_dir: str
     text_search_tensors_dir: str
 
@@ -37,7 +36,7 @@ class ImgBlenderSettings(BaseModel):
 
 
 class BackendSettings(BaseModel):
-    timeout: int | None
+    timeout: int
 
 
 class SharedResources(JSONSettings):
@@ -45,8 +44,8 @@ class SharedResources(JSONSettings):
     scraper: ScraperSettings
     img_processer: ImgProcesserSettings
     img_blender: ImgBlenderSettings
-    model_names: ModelNames
-    backend: BackendSettings
+    ml_model_names: ModelNames
+    backend: BackendSettings | None
 
 
 CONFIG_PATH = "config/config.json"

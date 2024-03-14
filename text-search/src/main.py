@@ -4,7 +4,7 @@ from typing import List
 
 from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
-from ts_context import Context
+from ts_context import ctx
 from utils import find_similar_images
 
 from shared.logger import configure_logging
@@ -19,8 +19,6 @@ async def lifespan(_: FastAPI):
     finally:
         await ctx.dispose_db()
 
-
-ctx = Context()
 
 app = FastAPI(lifespan=lifespan)
 logger = logging.getLogger("app")

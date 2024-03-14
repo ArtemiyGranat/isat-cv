@@ -24,7 +24,7 @@ class Context:
 
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.model, self.preprocess = clip.load(
-            shared_resources.model_names.clip_model, device=self.device
+            shared_resources.ml_model_names.clip_model, device=self.device
         )
 
     async def init_db(self) -> None:
@@ -32,3 +32,6 @@ class Context:
 
     async def dispose_db(self) -> None:
         await self.sqlite.disconnect()
+
+
+ctx = Context()

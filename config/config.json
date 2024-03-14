@@ -49,7 +49,7 @@
     "img_blender": {
         "pyramids_levels": 3
     },
-    "model_names": {
+    "ml_model_names": {
         "rembg_model": "unet",
         "clip_model": "ViT-B/32"
     }

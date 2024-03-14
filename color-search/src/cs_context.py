@@ -20,3 +20,6 @@ class Context:
 
     async def dispose_db(self) -> None:
         await self.sqlite.disconnect()
+
+
+ctx = Context()
