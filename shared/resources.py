@@ -36,12 +36,17 @@ class ImgBlenderSettings(BaseModel):
     pyramids_levels: int
 
 
+class BackendSettings(BaseModel):
+    timeout: int | None
+
+
 class SharedResources(JSONSettings):
     sqlite_creds: DatabaseCredentials
     scraper: ScraperSettings
     img_processer: ImgProcesserSettings
     img_blender: ImgBlenderSettings
     model_names: ModelNames
+    backend: BackendSettings
 
 
 CONFIG_PATH = "config/config.json"
