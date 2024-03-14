@@ -13,18 +13,18 @@ init:
         else docker compose build; \
     fi
 
-start:
+start service="":
     if {{ separate-compose }};  \
-        then docker-compose up; \
-        else docker compose up; \
+        then docker-compose up {{ service }}; \
+        else docker compose up {{ service }}; \
     fi
 
-stop:
+stop service="":
     if {{ separate-compose }};    \
-        then docker-compose down; \
-        else docker compose down; \
+        then docker-compose down {{ service }}; \
+        else docker compose down {{ service }}; \
     fi
 
 format:
     rye run ruff format
-    rye run ruff check --fix # sort headers + lintint
+    rye run ruff check --fix # sort headers + lint
