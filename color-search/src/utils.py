@@ -9,22 +9,18 @@ from shared.color import (
 )
 
 
-# FIXME: target_image_bytes is not the best naming
 async def similar_color(
-    target_image_bytes, color_model: ColorModel, amount: int = 10
+    target_image_as_bytes, color_model: ColorModel, amount: int = 10
 ):
-    with Image.open(target_image_bytes) as target_image:
+    with Image.open(target_image_as_bytes) as target_image:
         target_color = compute_mean_color(target_image, color_model)
 
-    differences = [
-        (
-            color_distance(
-                target_color, mean_color(image, color_model), color_model
-            ),
-            image.url,
-        )
-        for image in await ctx.image_repo.get_many()
-    ]
+    differences = []
+    for image in await ctx.image_repo.get_many():
+        color = mean_color(image, color_model)
+        distance = color_distance(target_color, color, color_model)
+        differences.append((distance, image.url))
+
     differences.sort()
 
     return [url for _, url in differences[:amount]]
