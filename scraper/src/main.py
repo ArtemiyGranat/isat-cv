@@ -1,7 +1,7 @@
 import logging
 from contextlib import asynccontextmanager
 
-from context import ctx
+from context import Context
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from tenacity import RetryError
@@ -21,6 +21,8 @@ async def lifespan(_: FastAPI):
         await ctx.close_client()
         await ctx.dispose_db()
 
+
+ctx = Context()
 
 app = FastAPI(lifespan=lifespan)
 logger = logging.getLogger("app")

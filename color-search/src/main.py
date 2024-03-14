@@ -2,7 +2,7 @@ import logging
 from contextlib import asynccontextmanager
 from typing import List
 
-from cs_context import ctx
+from cs_context import Context
 from fastapi import FastAPI, File, HTTPException, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
 from utils import similar_color
@@ -20,6 +20,8 @@ async def lifespan(_: FastAPI):
     finally:
         await ctx.dispose_db()
 
+
+ctx = Context()
 
 app = FastAPI(lifespan=lifespan)
 logger = logging.getLogger("app")

@@ -36,6 +36,3 @@ class Context:
 
     async def close_client(self) -> None:
         await self.http_client.aclose()
-
-
-ctx = Context()
