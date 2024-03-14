@@ -2,6 +2,7 @@ import os
 
 import httpx
 from databases import Database
+from dotenv import load_dotenv
 
 from shared.db import SqliteRepository, gen_sqlite_address
 from shared.entities import Image
@@ -10,12 +11,16 @@ from shared.resources import CONFIG_PATH, SharedResources
 
 class Context:
     def __init__(self) -> None:
+        load_dotenv()
+
         shared_resources = SharedResources(CONFIG_PATH)
 
         self.config = shared_resources.scraper
 
-        if not os.path.exists(self.config.img_dir):
-            os.makedirs(self.config.img_dir)
+        self.default_start_url = os.getenv("START_URL_SCRAPER")
+        self.default_css_selector = os.getenv("CSS_SELECTOR_SCRAPER", "img")
+
+        os.makedirs(self.config.img_dir, exist_ok=True)
 
         self.sqlite = Database(
             gen_sqlite_address(shared_resources.sqlite_creds)

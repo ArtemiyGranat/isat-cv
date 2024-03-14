@@ -5,11 +5,11 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - SCRAPER_URL=http://scraper:8000
-      - COLOR_SEARCH_URL=http://color_search:8000
-      - IMAGE_BLENDER_URL=http://image_blender:8000
-      - IMAGE_SEARCH_URL=http://image_search:8000
-      - TEXT_SEARCH_URL=http://text_search:8000
+      - SCRAPER_URL=$SCRAPER_URL
+      - COLOR_SEARCH_URL=$COLOR_SEARCH_URL
+      - IMAGE_BLENDER_URL=$IMAGE_BLENDER_URL
+      - IMAGE_SEARCH_URL=$IMAGE_SEARCH_URL
+      - TEXT_SEARCH_URL=$TEXT_SEARCH_URL
     volumes:
       - ./config:/app/config
       - ./backend/src:/app/src

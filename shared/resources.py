@@ -13,8 +13,6 @@ class DatabaseCredentials(BaseModel):
 
 
 class ScraperSettings(BaseModel):
-    start_url: str  # start_url should be url ends with something like ?page=
-    css_selector: str
     img_dir: str
     total_pages: int
     max_image_size_kb: int

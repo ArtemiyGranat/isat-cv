@@ -108,12 +108,10 @@ async def filter_urls(info, tags):
 
 
 async def process_page_content(
-    response_text: str, info: ScraperInfo, amount: int
+    response_text: str, info: ScraperInfo, amount: int, css_selector
 ) -> None:
     soup = BeautifulSoup(response_text, "html.parser")
-    unprocessed_urls = await filter_urls(
-        info, soup.select(ctx.config.css_selector)
-    )
+    unprocessed_urls = await filter_urls(info, soup.select(css_selector))
     if not unprocessed_urls:
         return
 

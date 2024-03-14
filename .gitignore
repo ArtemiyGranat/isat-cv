@@ -3,6 +3,7 @@
 !.pre-commit-config.yaml
 !.python-version
 !.gitignore
+!.env.sample
 
 requirements*.lock
 
@@ -13,7 +14,6 @@ dist/
 wheels/
 *.egg-info
 
-config/config.json
 img/
 processed_img/
 db/

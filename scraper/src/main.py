@@ -43,19 +43,30 @@ app.add_middleware(
     summary="Scrape certain amount of images",
     status_code=status.HTTP_204_NO_CONTENT,
 )
-async def scrape(page: int, amount: int) -> None:
+async def scrape(
+    page: int,
+    amount: int,
+    start_url: str | None = ctx.default_start_url,
+    css_selector: str = ctx.default_css_selector,
+) -> None:
+    if start_url is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Start URL is not specified either in request or on server",
+        )
+
     info = ScraperInfo(images_scraped=0, page=page)
     while info.images_scraped < amount and info.page < ctx.config.total_pages:
         try:
-            response = await get_with_retry(
-                f"{ctx.config.start_url}{info.page}"
-            )
+            response = await get_with_retry(f"{start_url}{info.page}")
             if response.status_code != 200:
                 info.page += 1
                 logger.info(f"Page {info.page} cannot be retrieved")
                 continue
 
-            await process_page_content(response.text, info, amount)
+            await process_page_content(
+                response.text, info, amount, css_selector
+            )
             info.page += 1
         except RetryError:
             raise HTTPException(
