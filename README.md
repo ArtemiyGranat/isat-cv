@@ -16,9 +16,8 @@ University.
 
 ## Usage
 
-1. Copy `config/example.json` to `config/config.json` and set needed config 
-values.
+1. Set needed config values in `config/config.json`, rename `.env.sample` in
+root and `frontend` directory to `.env` and set environment variables.
 2. If `just` is installed, run `just init && just start`, otherwise, copy
 commands from `justfile` and run them manually.
-3. To run frontend part, change directory to `frontend` and run `npm i`, then
-`npm run dev -- --start`.
+3. To run only frontend part, `just start frontend`.
