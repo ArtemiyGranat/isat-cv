@@ -18,6 +18,9 @@ services:
     build: scraper
     ports:
       - "8001:8000"
+    environment:
+      - START_URL_SCRAPER=$START_URL_SCRAPER
+      - CSS_SELECTOR_SCRAPER=$CSS_SELECTOR_SCRAPER
     volumes:
       - ./config:/app/config
       - ./scraper/src:/app/src

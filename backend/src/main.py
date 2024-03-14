@@ -39,7 +39,7 @@ app.add_middleware(
 class Context:
     def __init__(self) -> None:
         shared_resources = SharedResources(CONFIG_PATH)
-        self.timeout = shared_resources.backend.timeout
+        self.timeout = getattr(shared_resources.backend, "timeout", None)
 
         self.http_client = httpx.AsyncClient()
         self.scraper_url = os.getenv("SCRAPER_URL")

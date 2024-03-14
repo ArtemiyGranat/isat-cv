@@ -45,7 +45,7 @@ class SharedResources(JSONSettings):
     img_processer: ImgProcesserSettings
     img_blender: ImgBlenderSettings
     ml_model_names: ModelNames
-    backend: BackendSettings | None
+    backend: BackendSettings | None = None
 
 
 CONFIG_PATH = "config/config.json"
