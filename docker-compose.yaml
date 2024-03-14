@@ -75,3 +75,8 @@ services:
       - ./text-search/src:/app/src
       - ./db:/app/db
       - ./text_search_tensors:/app/text_search_tensors
+  frontend:
+    container_name: frontend
+    build: frontend
+    ports:
+      - "8080:8080"

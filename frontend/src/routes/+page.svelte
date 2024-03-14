@@ -1,6 +1,6 @@
 <!-- src/routes/+page.svelte -->
 <script context="module">
-	export const BACKEND_URL = 'http://0.0.0.0:8000';
+    export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 </script>
 
 <script>
