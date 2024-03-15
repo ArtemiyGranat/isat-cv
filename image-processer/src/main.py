@@ -3,6 +3,7 @@ import logging
 import os
 
 import clip
+import numpy as np
 import rembg
 import torch
 import torchvision.models as models
@@ -108,8 +109,8 @@ async def process_image(ctx: Context, image: entities.Image) -> None:
             hsv=mean_hsv,
             lab=mean_lab,
             # FIXME
-            image_embeddings=[0],
-            text_embeddings=[0],
+            image_embeddings=str(np.array([0])),
+            text_embeddings=str(np.array([0])),
             processed=True,
         ),
         fields=[

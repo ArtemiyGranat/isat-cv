@@ -10,8 +10,8 @@ class Image(Entity):
     hash: str
     hsv: List[float] | None = None
     lab: List[float] | None = None
-    image_embeddings: List[float] | None = None
-    text_embeddings: List[float] | None = None
+    image_embeddings: str | None = None
+    text_embeddings: str | None = None
     processed: bool
 
     _pk: ClassVar[str] = "id"
