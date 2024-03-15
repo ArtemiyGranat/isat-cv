@@ -31,7 +31,7 @@
         }
     },
     "scraper": {
-        "img_dir": "scraper/img",
+        "img_dir": "img",
         "total_pages": 10000,
         "max_image_size_kb": 1000,
         "img_save_extension": "jpeg"
