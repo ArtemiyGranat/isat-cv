@@ -12,7 +12,7 @@ class Context:
     def __init__(self) -> None:
         shared_resources = SharedResources(CONFIG_PATH)
 
-        self.pg = Database(gen_db_address(shared_resources.db_creds))
+        self.pg = Database(gen_db_address(shared_resources.pg_creds))
         self.image_repo = PgRepository(self.pg, Image)
 
         # TODO: move tensors_dir to somewhere else? looks not good
@@ -20,9 +20,7 @@ class Context:
             shared_resources.img_processer.img_search_tensors_dir
         )
 
-        # TODO: it shouldn't be just models.resnet18, save it or idk
-        # FIXME: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
-        self.model = models.resnet18(pretrained=True)
+        self.model = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
         self.model.eval()
 
         self.transform = transforms.Compose(
@@ -36,10 +34,10 @@ class Context:
         )
 
     async def init_db(self) -> None:
-        await self.sqlite.connect()
+        await self.pg.connect()
 
     async def dispose_db(self) -> None:
-        await self.sqlite.disconnect()
+        await self.pg.disconnect()
 
 
 ctx = Context()

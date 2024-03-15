@@ -1,5 +1,5 @@
 import logging
-from typing import ClassVar, List, Optional, Type
+from typing import ClassVar, List, Optional, Tuple, Type
 
 from asyncpg.exceptions import UniqueViolationError
 from databases import Database
@@ -21,7 +21,7 @@ class AbstractRepository:
         self._entity = entity
         self._table_name = entity._table_name
 
-    def _get_query_parameters(self, dump) -> (str, str):
+    def _get_query_parameters(self, dump) -> Tuple[str, str]:
         keys = list(dump.keys())
         columns = ",".join(keys)
         placeholders = ",".join(f":{key}" for key in keys)
@@ -118,5 +118,6 @@ class PgRepository(AbstractRepository):
         ]
 
 
+# FIXME: pg_creds and type hint
 def gen_db_address(creds: DatabaseCredentials):
     return f"{creds.driver}://{creds.username}:{creds.password}@{creds.url}:{creds.port}/{creds.db_name}"

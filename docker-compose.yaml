@@ -44,8 +44,10 @@ services:
     volumes:
       - ./config:/app/config
       - ./scraper/src:/app/src
-      - ./db:/app/db
       - ./img:/app/img
+    depends_on:
+      db:
+        condition: service_healthy
   color_search:
     container_name: color_search
     build: color-search
@@ -54,18 +56,22 @@ services:
     volumes:
       - ./config:/app/config
       - ./color-search/src:/app/src
-      - ./db:/app/db
+    depends_on:
+      db:
+        condition: service_healthy
   image-processer:
     container_name: image_processer
     build: image-processer
     volumes:
       - ./config:/app/config
       - ./image-processer/src:/app/src
-      - ./db:/app/db
       - ./img:/app/img
       - ./processed_img:/app/processed_img
       - ./img_search_tensors:/app/img_search_tensors
       - ./text_search_tensors:/app/text_search_tensors
+    depends_on:
+      db:
+        condition: service_healthy
   image-blender:
     container_name: image_blender
     build: image-blender
@@ -82,9 +88,11 @@ services:
     volumes:
       - ./config:/app/config
       - ./image-search/src:/app/src
-      - ./db:/app/db
       - ./processed_img:/app/processed_img
       - ./img_search_tensors:/app/img_search_tensors
+    depends_on:
+      db:
+        condition: service_healthy
   text-search:
     container_name: text_search
     build: text-search
@@ -93,8 +101,10 @@ services:
     volumes:
       - ./config:/app/config
       - ./text-search/src:/app/src
-      - ./db:/app/db
       - ./text_search_tensors:/app/text_search_tensors
+    depends_on:
+      db:
+        condition: service_healthy
   frontend:
     container_name: frontend
     build: frontend

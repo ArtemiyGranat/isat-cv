@@ -2,7 +2,7 @@ import clip
 import torch
 from databases import Database
 
-from shared.db import SqliteRepository, gen_sqlite_address
+from shared.db import PgRepository, gen_db_address
 from shared.entities import Image
 from shared.resources import CONFIG_PATH, SharedResources
 
@@ -12,10 +12,8 @@ class Context:
     def __init__(self) -> None:
         shared_resources = SharedResources(CONFIG_PATH)
 
-        self.sqlite = Database(
-            gen_sqlite_address(shared_resources.sqlite_creds)
-        )
-        self.image_repo = SqliteRepository(self.sqlite, Image)
+        self.pg = Database(gen_db_address(shared_resources.pg_creds))
+        self.image_repo = PgRepository(self.pg, Image)
 
         # TODO: vector storage
         self.tensors_dir = (
@@ -28,10 +26,10 @@ class Context:
         )
 
     async def init_db(self) -> None:
-        await self.sqlite.connect()
+        await self.pg.connect()
 
     async def dispose_db(self) -> None:
-        await self.sqlite.disconnect()
+        await self.pg.disconnect()
 
 
 ctx = Context()

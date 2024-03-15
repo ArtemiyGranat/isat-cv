@@ -12,7 +12,7 @@ CREATE TABLE images (
     lab vector(3),
     image_embeddings vector,
     text_embeddings vector,
-    is_processed boolean NOT NULL,
+    processed boolean NOT NULL,
 
     PRIMARY KEY(id)
 )

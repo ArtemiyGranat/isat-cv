@@ -1,7 +1,6 @@
 import asyncio
 import logging
 import os
-from typing import List
 
 import clip
 import rembg
@@ -48,7 +47,9 @@ class Context:
                 ),
             ]
         )
-        self.image_search_model = models.resnet18(pretrained=True)
+        self.image_search_model = models.resnet18(
+            weights=models.ResNet18_Weights.DEFAULT
+        )
 
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.text_search_model, self.text_search_preprocess = clip.load(
@@ -104,22 +105,19 @@ async def process_image(ctx: Context, image: entities.Image) -> None:
             id=image.id,
             url=image.url,
             hash=image.hash,
-            mean_h=mean_hsv[0],
-            mean_s=mean_hsv[1],
-            mean_v=mean_hsv[2],
-            mean_l=mean_lab[0],
-            mean_a=mean_lab[1],
-            mean_b=mean_lab[2],
-            processed=1,
+            hsv=mean_hsv,
+            lab=mean_lab,
+            # FIXME
+            image_embeddings=[0],
+            text_embeddings=[0],
+            processed=True,
         ),
         fields=[
             "processed",
-            "mean_h",
-            "mean_s",
-            "mean_v",
-            "mean_l",
-            "mean_a",
-            "mean_b",
+            "hsv",
+            "lab",
+            "image_embeddings",
+            "text_embeddings",
         ],
     )
     logger.info(
@@ -128,10 +126,7 @@ async def process_image(ctx: Context, image: entities.Image) -> None:
 
 
 async def process_images(ctx: Context) -> None:
-    images: List[entities.Image] = await ctx.image_repo.get_many(
-        field="processed", value=0
-    )
-    for image in images:
+    for image in await ctx.image_repo.get_many(field="processed", value=False):
         await process_image(ctx, image)
 
 

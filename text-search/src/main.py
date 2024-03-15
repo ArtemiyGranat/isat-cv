@@ -47,4 +47,4 @@ async def text_search(query: str, amount: int = 10) -> List[str]:
 
 @app.get("/", summary="Check availability")
 def healthcheck():
-    return "Image search is running!"
+    return "Text search is running!"
