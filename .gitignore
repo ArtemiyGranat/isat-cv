@@ -16,5 +16,6 @@ wheels/
 
 img/
 processed_img/
+db/data
 img_search_tensors/
 text_search_tensors/

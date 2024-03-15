@@ -14,7 +14,7 @@ from PIL import Image
 
 import shared.entities as entities
 from shared.color import ColorModel, compute_mean_color
-from shared.db import SqliteRepository, gen_sqlite_address
+from shared.db import PgRepository, gen_db_address
 from shared.logger import configure_logging
 from shared.resources import CONFIG_PATH, SharedResources
 
@@ -36,10 +36,8 @@ class Context:
         self.orig_img_dir = shared_resources.scraper.img_dir
         self.orig_img_ext = shared_resources.scraper.img_save_extension
 
-        self.sqlite = Database(
-            gen_sqlite_address(shared_resources.sqlite_creds)
-        )
-        self.image_repo = SqliteRepository(self.sqlite, entities.Image)
+        self.pg = Database(gen_db_address(shared_resources.pg_creds))
+        self.image_repo = PgRepository(self.pg, entities.Image)
 
         self.image_search_transform = transforms.Compose(
             [
@@ -58,10 +56,10 @@ class Context:
         )
 
     async def init_db(self) -> None:
-        await self.sqlite.connect()
+        await self.pg.connect()
 
     async def dispose_db(self) -> None:
-        await self.sqlite.disconnect()
+        await self.pg.disconnect()
 
     def init_scheduler(self, func) -> None:
         self.scheduler = AsyncIOScheduler()

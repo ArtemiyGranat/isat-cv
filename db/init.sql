@@ -10,8 +10,8 @@ CREATE TABLE images (
     hash varchar(128) UNIQUE NOT NULL,
     hsv vector(3),
     lab vector(3),
-    image_embeddings vector(2000),
-    text_embeddings vector(2000),
+    image_embeddings vector,
+    text_embeddings vector,
     is_processed boolean NOT NULL,
 
     PRIMARY KEY(id)

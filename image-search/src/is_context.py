@@ -2,7 +2,7 @@ import torchvision.models as models
 import torchvision.transforms as transforms
 from databases import Database
 
-from shared.db import SqliteRepository, gen_sqlite_address
+from shared.db import PgRepository, gen_db_address
 from shared.entities import Image
 from shared.resources import CONFIG_PATH, SharedResources
 
@@ -12,10 +12,8 @@ class Context:
     def __init__(self) -> None:
         shared_resources = SharedResources(CONFIG_PATH)
 
-        self.sqlite = Database(
-            gen_sqlite_address(shared_resources.sqlite_creds)
-        )
-        self.image_repo = SqliteRepository(self.sqlite, Image)
+        self.pg = Database(gen_db_address(shared_resources.db_creds))
+        self.image_repo = PgRepository(self.pg, Image)
 
         # TODO: move tensors_dir to somewhere else? looks not good
         self.tensors_dir = (

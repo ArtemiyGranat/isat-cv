@@ -1,4 +1,21 @@
 services:
+  db:
+    container_name: isat-cv-db
+    image: ankane/pgvector
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./db/data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: "pg_isready --username=postgres && psql --username=postgres --list"
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
   backend:
     container_name: backend
     build: backend
@@ -13,6 +30,9 @@ services:
     volumes:
       - ./config:/app/config
       - ./backend/src:/app/src
+    depends_on:
+      db:
+        condition: service_healthy
   scraper:
     container_name: scraper
     build: scraper

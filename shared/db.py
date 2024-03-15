@@ -1,6 +1,7 @@
 import logging
 from typing import ClassVar, List, Optional, Type
 
+from asyncpg.exceptions import UniqueViolationError
 from databases import Database
 from pydantic import BaseModel, TypeAdapter
 
@@ -86,15 +87,12 @@ class AbstractRepository:
         ]
 
 
-# FIXME: Should be refactored
-class SqliteRepository(AbstractRepository):
-    async def create_table(self) -> None:
-        await self._db.execute(
-            query=f"""CREATE TABLE IF NOT EXISTS {self._table_name}
-                (id TEXT, url TEXT, hash TEXT, mean_h REAL, mean_s REAL,
-                 mean_v REAL, mean_l REAL, mean_a REAL, mean_b REAL,
-                 processed INTEGER);"""
-        )
+class PgRepository(AbstractRepository):
+    async def add_or_update(self, entity: Entity, fields: List[str]):
+        try:
+            await self.add(entity)
+        except UniqueViolationError:
+            await self.update(entity, fields)
 
     async def get_many_from_list(self, field, values) -> List[Entity]:
         if values is None or not values:
@@ -120,5 +118,5 @@ class SqliteRepository(AbstractRepository):
         ]
 
 
-def gen_sqlite_address(creds: DatabaseCredentials) -> str:
-    return f"{creds.driver}:///{creds.db_name}.db"
+def gen_db_address(creds: DatabaseCredentials):
+    return f"{creds.driver}://{creds.username}:{creds.password}@{creds.url}:{creds.port}/{creds.db_name}"
