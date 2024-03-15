@@ -70,22 +70,24 @@ class Context:
         )
 
 
-def save_image_search_tensors(ctx: Context, img: Image, img_id: str) -> None:
+def compute_image_search_tensors(
+    ctx: Context, img: Image, img_id: str
+) -> None:
     transformed_image = ctx.image_search_transform(img).unsqueeze(0)
     with torch.no_grad():
         features = ctx.image_search_model(transformed_image)
 
-    torch.save(features.squeeze(0), f"{ctx.img_tensors_dir}/{img_id}.pt")
+    return features.squeeze(0)
 
 
-def save_text_search_tensors(ctx: Context, img: Image, img_id: str) -> None:
+def compute_text_search_tensors(ctx: Context, img: Image, img_id: str) -> None:
     transformed_image = (
         ctx.text_search_preprocess(img).unsqueeze(0).to(ctx.device)
     )
     with torch.no_grad():
         features = ctx.text_search_model.encode_image(transformed_image)
 
-    torch.save(features, f"{ctx.text_tensors_dir}/{img_id}.pt")
+    return features.squeeze(0)
 
 
 async def process_image(ctx: Context, image: entities.Image) -> None:
@@ -96,8 +98,12 @@ async def process_image(ctx: Context, image: entities.Image) -> None:
         mean_hsv = compute_mean_color(processed_img, ColorModel.HSV)
         mean_lab = compute_mean_color(processed_img, ColorModel.LAB)
 
-        save_image_search_tensors(ctx, processed_img.convert("RGB"), image.id)
-        save_text_search_tensors(ctx, processed_img, image.id)
+        image_embeddings = compute_image_search_tensors(
+            ctx, processed_img.convert("RGB"), image.id
+        )
+        text_embeddings = compute_text_search_tensors(
+            ctx, processed_img, image.id
+        )
 
         processed_img.save(f"{ctx.config.img_dir}/{image.id}.png")
 
@@ -108,9 +114,12 @@ async def process_image(ctx: Context, image: entities.Image) -> None:
             hash=image.hash,
             hsv=mean_hsv,
             lab=mean_lab,
-            # FIXME
-            image_embeddings=str(np.array([0])),
-            text_embeddings=str(np.array([0])),
+            image_embeddings=np.array2string(
+                image_embeddings.numpy(), separator=", "
+            ),
+            text_embeddings=np.array2string(
+                text_embeddings.numpy(), separator=", "
+            ),
             processed=True,
         ),
         fields=[
