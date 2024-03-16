@@ -119,7 +119,7 @@ class PgRepository(AbstractRepository):
         ]
 
     def cosine_similarity_query(self, embedding_field, embedding):
-        return f"1 - ({embedding_field} <=> '{embedding}')"
+        return f"1 - ({embedding_field} <=> '{embedding}') DESC"
 
     def distance_query(self, embedding_field, embedding):
         return f"{embedding_field} <-> '{embedding}'"

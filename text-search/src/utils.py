@@ -12,7 +12,7 @@ async def find_similar_images(query: str, amount: int = 10):
         for image in await ctx.image_repo.get_nearest_embeddings(
             "text_embeddings",
             np.array2string(text_features, separator=", "),
-            ctx.image_repo.distance_query,
+            ctx.image_repo.cosine_similarity_query,
             amount,
             field="processed",
             value=True,
