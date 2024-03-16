@@ -70,9 +70,7 @@ class Context:
         )
 
 
-def compute_image_search_tensors(
-    ctx: Context, img: Image, img_id: str
-) -> None:
+def compute_image_search_tensors(ctx: Context, img: Image) -> None:
     transformed_image = ctx.image_search_transform(img).unsqueeze(0)
     with torch.no_grad():
         features = ctx.image_search_model(transformed_image)
@@ -80,7 +78,7 @@ def compute_image_search_tensors(
     return features.squeeze(0)
 
 
-def compute_text_search_tensors(ctx: Context, img: Image, img_id: str) -> None:
+def compute_text_search_tensors(ctx: Context, img: Image) -> None:
     transformed_image = (
         ctx.text_search_preprocess(img).unsqueeze(0).to(ctx.device)
     )
@@ -99,11 +97,9 @@ async def process_image(ctx: Context, image: entities.Image) -> None:
         mean_lab = compute_mean_color(processed_img, ColorModel.LAB)
 
         image_embeddings = compute_image_search_tensors(
-            ctx, processed_img.convert("RGB"), image.id
+            ctx, processed_img.convert("RGB")
         )
-        text_embeddings = compute_text_search_tensors(
-            ctx, processed_img, image.id
-        )
+        text_embeddings = compute_text_search_tensors(ctx, processed_img)
 
         processed_img.save(f"{ctx.config.img_dir}/{image.id}.png")
 
@@ -130,6 +126,7 @@ async def process_image(ctx: Context, image: entities.Image) -> None:
             "text_embeddings",
         ],
     )
+
     logger.info(
         f"Processed image: {ctx.orig_img_dir}/{image.id}.{ctx.orig_img_ext}"
     )

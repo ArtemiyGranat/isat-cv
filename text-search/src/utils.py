@@ -1,23 +1,17 @@
 import clip
-import torch
+import numpy as np
 from ts_context import ctx
 
 
 async def find_similar_images(query: str, amount: int = 10):
     text = clip.tokenize([query]).to(ctx.device)
-    text_features = ctx.model.encode_text(text)
+    text_features = ctx.model.encode_text(text).detach().squeeze(0).numpy()
 
-    similarities = []
-
-    for image in await ctx.image_repo.get_many(field="processed", value=1):
-        image_features = torch.load(
-            f"{ctx.tensors_dir}/{image.id}.pt", weights_only=True
+    return [
+        image.url
+        for image in await ctx.image_repo.get_nearest_embeddings(
+            "text_embeddings",
+            "'" + np.array2string(text_features, separator=", ") + "'",
+            amount,
         )
-
-        with torch.no_grad():
-            similarity = (image_features @ text_features.T).cpu().numpy()
-            similarities.append((similarity[0][0], image.url))
-
-    similarities.sort(reverse=True)
-
-    return [url for _, url in similarities[:amount]]
+    ]

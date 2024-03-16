@@ -164,7 +164,7 @@
      <input type="file" id="blendImage2" accept="image/*" />
   </div>
   <button on:click={blend} disabled={isLoadingBlend}>
-    {isLoadingColor ? 'Loading...' : 'Blend images'}
+    {isLoadingBlend ? 'Loading...' : 'Blend images'}
   </button>
   <div class="blended-image">
     {#each blendResponse as imageUrl}

@@ -117,6 +117,25 @@ class PgRepository(AbstractRepository):
             for row in rows
         ]
 
+    async def get_nearest_embeddings(
+        self, embedding_field, embedding, amount, field=None, value=None
+    ):
+        query = f"SELECT * FROM {self._table_name}"
+        query += f" ORDER BY {embedding_field} <-> {embedding} LIMIT {amount}"
+
+        if field is not None:
+            query += f" WHERE {field} = :{field}"
+            rows = await self._db.fetch_all(query=query, values={field: value})
+        else:
+            rows = await self._db.fetch_all(query=query)
+
+        logger.debug(f"Sent query: {query}")
+
+        return [
+            TypeAdapter(self._entity).validate_python(dict(row._mapping))
+            for row in rows
+        ]
+
 
 # FIXME: pg_creds and type hint
 def gen_db_address(creds: DatabaseCredentials):
