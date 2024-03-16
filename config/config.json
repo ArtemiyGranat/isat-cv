@@ -24,7 +24,7 @@
             }
         },
         "loggers": {
-            "app": {"handlers": ["console"], "level": "DEBUG", "propagate": true},
+            "app": {"handlers": ["console"], "level": "INFO", "propagate": true},
             "databases": {"handlers": ["console"], "level": "INFO"},
             "httpx": {"handlers": ["console"], "level": "INFO"},
             "asgi_correlation_id": {"handlers": ["console"], "level": "INFO"}
@@ -45,10 +45,8 @@
         "db_name": "isat_cv_db"
     },
     "img_processer": {
-        "interval": 30,
-        "img_dir": "processed_img",
-        "img_search_tensors_dir": "img_search_tensors",
-        "text_search_tensors_dir": "text_search_tensors"
+        "interval": 10,
+        "img_dir": "processed_img"
     },
     "img_blender": {
         "pyramids_levels": 3

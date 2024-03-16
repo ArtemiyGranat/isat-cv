@@ -28,9 +28,6 @@ class Context:
 
         self.config = shared_resources.img_processer
 
-        # TODO: vector storage
-        self.img_tensors_dir = self.config.img_search_tensors_dir
-        self.text_tensors_dir = self.config.text_search_tensors_dir
         self.session = rembg.new_session(model_names.rembg_model)
 
         self.orig_img_dir = shared_resources.scraper.img_dir
@@ -143,8 +140,6 @@ async def main():
     ctx.text_search_model.eval()
 
     os.makedirs(ctx.config.img_dir, exist_ok=True)
-    os.makedirs(ctx.config.img_search_tensors_dir, exist_ok=True)
-    os.makedirs(ctx.config.text_search_tensors_dir, exist_ok=True)
 
     configure_logging()
     await ctx.init_db()

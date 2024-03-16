@@ -25,8 +25,6 @@ class ScraperSettings(BaseModel):
 class ImgProcesserSettings(BaseModel):
     interval: int
     img_dir: str
-    img_search_tensors_dir: str
-    text_search_tensors_dir: str
 
 
 class ModelNames(BaseModel):

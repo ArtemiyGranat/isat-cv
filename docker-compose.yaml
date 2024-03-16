@@ -67,8 +67,6 @@ services:
       - ./image-processer/src:/app/src
       - ./img:/app/img
       - ./processed_img:/app/processed_img
-      - ./img_search_tensors:/app/img_search_tensors
-      - ./text_search_tensors:/app/text_search_tensors
     depends_on:
       db:
         condition: service_healthy
@@ -89,7 +87,6 @@ services:
       - ./config:/app/config
       - ./image-search/src:/app/src
       - ./processed_img:/app/processed_img
-      - ./img_search_tensors:/app/img_search_tensors
     depends_on:
       db:
         condition: service_healthy
@@ -101,7 +98,6 @@ services:
     volumes:
       - ./config:/app/config
       - ./text-search/src:/app/src
-      - ./text_search_tensors:/app/text_search_tensors
     depends_on:
       db:
         condition: service_healthy

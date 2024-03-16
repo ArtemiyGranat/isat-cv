@@ -15,11 +15,6 @@ class Context:
         self.pg = Database(gen_db_address(shared_resources.pg_creds))
         self.image_repo = PgRepository(self.pg, Image)
 
-        # TODO: move tensors_dir to somewhere else? looks not good
-        self.tensors_dir = (
-            shared_resources.img_processer.img_search_tensors_dir
-        )
-
         self.model = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
         self.model.eval()
 
