@@ -1,7 +1,7 @@
+import numpy as np
 import torch
 from is_context import ctx
 from PIL import Image
-from scipy.spatial.distance import cosine
 
 
 def extract_features(image):
@@ -13,19 +13,18 @@ def extract_features(image):
 
 async def similar_images(target_file, amount=10):
     target_image = Image.open(target_file).convert("RGB")
-    target_features = extract_features(target_image)
-    similarities = []
+    target_features = extract_features(target_image).detach().numpy()
 
-    images = await ctx.image_repo.get_many(field="processed", value=1)
-    for image in images:
-        # TODO: vector storage
-        features = torch.load(
-            f"{ctx.tensors_dir}/{image.id}.pt", weights_only=True
+    # FIXME: move '...' to shared/db
+    # TODO: cosine similarity
+    return [
+        image.url
+        for image in await ctx.image_repo.get_nearest_embeddings(
+            "image_embeddings",
+            "'" + np.array2string(target_features, separator=", ") + "'",
+            amount,
+            # FIXME: LIMIT is after WHERE
+            # field="processed",
+            # value=True,
         )
-
-        similarity = 1 - cosine(target_features.numpy(), features.numpy())
-        similarities.append((similarity, image.url))
-
-    similarities.sort(reverse=True)
-
-    return [url for _, url in similarities[:amount]]
+    ]

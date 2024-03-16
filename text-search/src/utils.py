@@ -13,5 +13,7 @@ async def find_similar_images(query: str, amount: int = 10):
             "text_embeddings",
             "'" + np.array2string(text_features, separator=", ") + "'",
             amount,
+            field="processed",
+            value=True,
         )
     ]
