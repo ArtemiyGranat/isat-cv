@@ -15,16 +15,14 @@ async def similar_images(target_file, amount=10):
     target_image = Image.open(target_file).convert("RGB")
     target_features = extract_features(target_image).detach().numpy()
 
-    # FIXME: move '...' to shared/db
-    # TODO: cosine similarity
     return [
         image.url
         for image in await ctx.image_repo.get_nearest_embeddings(
             "image_embeddings",
             "'" + np.array2string(target_features, separator=", ") + "'",
+            ctx.image_repo.cosine_similarity_query,
             amount,
-            # FIXME: LIMIT is after WHERE
-            # field="processed",
-            # value=True,
+            field="processed",
+            value=True,
         )
     ]
