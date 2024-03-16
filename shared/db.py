@@ -119,13 +119,13 @@ class PgRepository(AbstractRepository):
         ]
 
     def cosine_similarity_query(self, embedding_field, embedding):
-        return f"1 - ({embedding_field} <=> {embedding})"
+        return f"1 - ({embedding_field} <=> '{embedding}')"
 
     def distance_query(self, embedding_field, embedding):
-        return f"{embedding_field} <-> {embedding}"
+        return f"{embedding_field} <-> '{embedding}'"
 
     def inner_product_query(self, embedding_field, embedding):
-        return f"({embedding_field} <#> {embedding}) * -1"
+        return f"({embedding_field} <#> '{embedding}') * -1"
 
     async def get_nearest_embeddings(
         self,

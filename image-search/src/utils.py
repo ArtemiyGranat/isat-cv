@@ -19,7 +19,7 @@ async def similar_images(target_file, amount=10):
         image.url
         for image in await ctx.image_repo.get_nearest_embeddings(
             "image_embeddings",
-            "'" + np.array2string(target_features, separator=", ") + "'",
+            np.array2string(target_features, separator=", "),
             ctx.image_repo.cosine_similarity_query,
             amount,
             field="processed",
