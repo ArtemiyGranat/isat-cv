@@ -1,0 +1,108 @@
+services:
+  db:
+    container_name: isat-cv-db
+    image: ankane/pgvector
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./db/data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: "pg_isready --username=postgres && psql --username=postgres --list"
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+  backend:
+    container_name: backend
+    build: backend
+    ports:
+      - "8000:8000"
+    environment:
+      - SCRAPER_URL=$SCRAPER_URL
+      - COLOR_SEARCH_URL=$COLOR_SEARCH_URL
+      - IMAGE_BLENDER_URL=$IMAGE_BLENDER_URL
+      - IMAGE_SEARCH_URL=$IMAGE_SEARCH_URL
+      - TEXT_SEARCH_URL=$TEXT_SEARCH_URL
+    volumes:
+      - ./config:/app/config
+      - ./backend/src:/app/src
+    depends_on:
+      db:
+        condition: service_healthy
+  scraper:
+    container_name: scraper
+    build: scraper
+    ports:
+      - "8001:8000"
+    environment:
+      - START_URL_SCRAPER=$START_URL_SCRAPER
+      - CSS_SELECTOR_SCRAPER=$CSS_SELECTOR_SCRAPER
+    volumes:
+      - ./config:/app/config
+      - ./scraper/src:/app/src
+      - ./img:/app/img
+    depends_on:
+      db:
+        condition: service_healthy
+  color_search:
+    container_name: color_search
+    build: color-search
+    ports:
+      - "8002:8000"
+    volumes:
+      - ./config:/app/config
+      - ./color-search/src:/app/src
+    depends_on:
+      db:
+        condition: service_healthy
+  image-processer:
+    container_name: image_processer
+    build: image-processer
+    volumes:
+      - ./config:/app/config
+      - ./image-processer/src:/app/src
+      - ./img:/app/img
+      - ./processed_img:/app/processed_img
+    depends_on:
+      db:
+        condition: service_healthy
+  image-blender:
+    container_name: image_blender
+    build: image-blender
+    ports:
+      - "8003:8000"
+    volumes:
+      - ./config:/app/config
+      - ./image-blender/src:/app/src
+  image-search:
+    container_name: image_search
+    build: image-search
+    ports:
+      - "8004:8000"
+    volumes:
+      - ./config:/app/config
+      - ./image-search/src:/app/src
+      - ./processed_img:/app/processed_img
+    depends_on:
+      db:
+        condition: service_healthy
+  text-search:
+    container_name: text_search
+    build: text-search
+    ports:
+      - "8005:8000"
+    volumes:
+      - ./config:/app/config
+      - ./text-search/src:/app/src
+    depends_on:
+      db:
+        condition: service_healthy
+  frontend:
+    container_name: frontend
+    build: frontend
+    ports:
+      - "8080:8080"

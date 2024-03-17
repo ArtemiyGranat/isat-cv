@@ -1,9 +1,12 @@
 import logging
-from typing import ClassVar, List, Optional, Type
+from typing import ClassVar, List, Optional, Tuple, Type
 
+import numpy as np
+from asyncpg.exceptions import UniqueViolationError
 from databases import Database
 from pydantic import BaseModel, TypeAdapter
 
+from shared.models import Distance
 from shared.resources import DatabaseCredentials
 
 logger = logging.getLogger("app")
@@ -20,7 +23,7 @@ class AbstractRepository:
         self._entity = entity
         self._table_name = entity._table_name
 
-    def _get_query_parameters(self, dump) -> (str, str):
+    def _get_query_parameters(self, dump) -> Tuple[str, str]:
         keys = list(dump.keys())
         columns = ",".join(keys)
         placeholders = ",".join(f":{key}" for key in keys)
@@ -86,13 +89,16 @@ class AbstractRepository:
         ]
 
 
-# FIXME: Should be refactored
-class SqliteRepository(AbstractRepository):
-    async def create_table(self) -> None:
-        await self._db.execute(
-            query=f"""CREATE TABLE IF NOT EXISTS {self._table_name}
-                (id TEXT, url TEXT, hash TEXT, processed INTEGER);"""
-        )
+# TODO: PgVectorRepository?
+# TODO: move get_many_from list to AbstractRepository and add select
+# specified field support
+# TODO: type hints
+class PgRepository(AbstractRepository):
+    async def add_or_update(self, entity: Entity, fields: List[str]):
+        try:
+            await self.add(entity)
+        except UniqueViolationError:
+            await self.update(entity, fields)
 
     async def get_many_from_list(self, field, values) -> List[Entity]:
         if values is None or not values:
@@ -117,6 +123,42 @@ class SqliteRepository(AbstractRepository):
             for row in rows
         ]
 
+    async def get_nearest_embeddings(
+        self,
+        embedding_field,
+        embedding,
+        distance_type,
+        amount,
+        field=None,
+        value=None,
+    ):
+        embedding = np.array2string(embedding, separator=", ")
+        query = f"SELECT * FROM {self._table_name}"
 
-def gen_sqlite_address(creds: DatabaseCredentials) -> str:
-    return f"{creds.driver}:///{creds.db_name}.db"
+        if field is not None:
+            query += f" WHERE {field} = :{field}"
+
+        distance = {
+            Distance.COSINE_SIMILARITY: f"1 - ({embedding_field} <=> '{embedding}') DESC",
+            Distance.DISTANCE: f"{embedding_field} <-> '{embedding}'",
+            Distance.INNER_PRODUCT: f"({embedding_field} <#> '{embedding}') * -1",
+        }
+
+        query += f" ORDER BY {distance[distance_type]} LIMIT {amount}"
+
+        if field is not None:
+            rows = await self._db.fetch_all(query=query, values={field: value})
+        else:
+            rows = await self._db.fetch_all(query=query)
+
+        logger.debug(f"Sent query: {query}")
+
+        return [
+            TypeAdapter(self._entity).validate_python(dict(row._mapping))
+            for row in rows
+        ]
+
+
+# FIXME: pg_creds and type hint
+def gen_db_address(creds: DatabaseCredentials):
+    return f"{creds.driver}://{creds.username}:{creds.password}@{creds.url}:{creds.port}/{creds.db_name}"

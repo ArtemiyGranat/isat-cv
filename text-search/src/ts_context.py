@@ -1,6 +1,5 @@
-import os
-
-import httpx
+import clip
+import torch
 from databases import Database
 
 from shared.db import PgRepository, gen_db_address
@@ -8,29 +7,24 @@ from shared.entities import Image
 from shared.resources import CONFIG_PATH, SharedResources
 
 
+# TODO: same as for cs_context
 class Context:
     def __init__(self) -> None:
         shared_resources = SharedResources(CONFIG_PATH)
 
-        self.config = shared_resources.scraper
-
-        self.default_start_url = os.getenv("START_URL_SCRAPER")
-        self.default_css_selector = os.getenv("CSS_SELECTOR_SCRAPER", "img")
-
-        os.makedirs(self.config.img_dir, exist_ok=True)
-
-        self.http_client = httpx.AsyncClient()
         self.pg = Database(gen_db_address(shared_resources.pg_creds))
         self.image_repo = PgRepository(self.pg, Image)
+
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.model, self.preprocess = clip.load(
+            shared_resources.ml_model_names.clip_model, device=self.device
+        )
 
     async def init_db(self) -> None:
         await self.pg.connect()
 
     async def dispose_db(self) -> None:
         await self.pg.disconnect()
-
-    async def close_client(self) -> None:
-        await self.http_client.aclose()
 
 
 ctx = Context()

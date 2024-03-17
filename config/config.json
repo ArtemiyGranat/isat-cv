@@ -24,26 +24,35 @@
             }
         },
         "loggers": {
-            "app": {"handlers": ["console"], "level": "DEBUG", "propagate": true},
+            "app": {"handlers": ["console"], "level": "INFO", "propagate": true},
             "databases": {"handlers": ["console"], "level": "INFO"},
             "httpx": {"handlers": ["console"], "level": "INFO"},
             "asgi_correlation_id": {"handlers": ["console"], "level": "INFO"}
         }
     },
     "scraper": {
-        "start_url": "https://aboba.com/?page=",
-        "img_dir": "scraper/img",
-        "css_selector": "img",
-        "total_pages": 1,
+        "img_dir": "img",
+        "total_pages": 10000,
         "max_image_size_kb": 1000,
         "img_save_extension": "jpeg"
     },
-    "sqlite_creds": {
-        "driver": "sqlite+aiosqlite",
-        "db_name": "db/images"
+    "pg_creds": {
+        "driver": "postgres",
+        "username": "postgres",
+        "password": "1234",
+        "url": "isat-cv-db",
+        "port": "5432",
+        "db_name": "isat_cv_db"
     },
     "img_processer": {
-        "interval": 30,
+        "interval": 10,
         "img_dir": "processed_img"
+    },
+    "img_blender": {
+        "pyramids_levels": 3
+    },
+    "ml_model_names": {
+        "rembg_model": "unet",
+        "clip_model": "ViT-B/32"
     }
 }
