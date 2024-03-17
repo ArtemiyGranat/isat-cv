@@ -5,14 +5,10 @@
 isat-cv is an educational project for ISaT and CV courses in Saratov State
 University.
 
-<!--- Add more info about project -->
-
 ## Prerequisites
 * Python
 * Docker
 * [`just`](https://github.com/casey/just) (optional)
-
-<!--- Correct grammar here -->
 
 ## Usage
 

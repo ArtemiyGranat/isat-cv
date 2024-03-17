@@ -5,6 +5,7 @@ from asyncpg.exceptions import UniqueViolationError
 from databases import Database
 from pydantic import BaseModel, TypeAdapter
 
+from shared.models import Distance
 from shared.resources import DatabaseCredentials
 
 logger = logging.getLogger("app")
@@ -88,6 +89,9 @@ class AbstractRepository:
 
 
 # TODO: PgVectorRepository?
+# TODO: move get_many_from list to AbstractRepository and add select
+# specified field support
+# TODO: type hints
 class PgRepository(AbstractRepository):
     async def add_or_update(self, entity: Entity, fields: List[str]):
         try:
@@ -118,20 +122,11 @@ class PgRepository(AbstractRepository):
             for row in rows
         ]
 
-    def cosine_similarity_query(self, embedding_field, embedding):
-        return f"1 - ({embedding_field} <=> '{embedding}') DESC"
-
-    def distance_query(self, embedding_field, embedding):
-        return f"{embedding_field} <-> '{embedding}'"
-
-    def inner_product_query(self, embedding_field, embedding):
-        return f"({embedding_field} <#> '{embedding}') * -1"
-
     async def get_nearest_embeddings(
         self,
         embedding_field,
         embedding,
-        distance,
+        distance_type,
         amount,
         field=None,
         value=None,
@@ -141,9 +136,13 @@ class PgRepository(AbstractRepository):
         if field is not None:
             query += f" WHERE {field} = :{field}"
 
-        query += (
-            f" ORDER BY {distance(embedding_field, embedding)} LIMIT {amount}"
-        )
+        distance = {
+            Distance.COSINE_SIMILARITY: f"1 - ({embedding_field} <=> '{embedding}') DESC",
+            Distance.DISTANCE: f"{embedding_field} <-> '{embedding}'",
+            Distance.INNER_PRODUCT: f"({embedding_field} <#> '{embedding}') * -1",
+        }
+
+        query += f" ORDER BY {distance[distance_type]} LIMIT {amount}"
 
         if field is not None:
             rows = await self._db.fetch_all(query=query, values={field: value})

@@ -1,6 +1,5 @@
 import json
-from typing import List
-from uuid import UUID
+from enum import Enum
 
 from pydantic import BaseModel
 
@@ -12,9 +11,12 @@ class JSONSettings(BaseModel):
             return super().__init__(**config)
 
 
-class Image(BaseModel):
-    id: UUID
-    url: str
-    hash: str
-    hsv: List[float] | None = None
-    lab: List[float] | None = None
+class ColorModel(int, Enum):
+    LAB = 0
+    HSV = 1
+
+
+class Distance(int, Enum):
+    COSINE_SIMILARITY = 0
+    DISTANCE = 1
+    INNER_PRODUCT = 2
