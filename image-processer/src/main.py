@@ -1,9 +1,9 @@
 import asyncio
 import logging
 import os
-from typing import List
 
 import clip
+import numpy as np
 import rembg
 import torch
 import torchvision.models as models
@@ -14,7 +14,7 @@ from PIL import Image
 
 import shared.entities as entities
 from shared.color import ColorModel, compute_mean_color
-from shared.db import SqliteRepository, gen_sqlite_address
+from shared.db import PgRepository, gen_db_address
 from shared.logger import configure_logging
 from shared.resources import CONFIG_PATH, SharedResources
 
@@ -28,18 +28,13 @@ class Context:
 
         self.config = shared_resources.img_processer
 
-        # TODO: vector storage
-        self.img_tensors_dir = self.config.img_search_tensors_dir
-        self.text_tensors_dir = self.config.text_search_tensors_dir
         self.session = rembg.new_session(model_names.rembg_model)
 
         self.orig_img_dir = shared_resources.scraper.img_dir
         self.orig_img_ext = shared_resources.scraper.img_save_extension
 
-        self.sqlite = Database(
-            gen_sqlite_address(shared_resources.sqlite_creds)
-        )
-        self.image_repo = SqliteRepository(self.sqlite, entities.Image)
+        self.pg = Database(gen_db_address(shared_resources.pg_creds))
+        self.image_repo = PgRepository(self.pg, entities.Image)
 
         self.image_search_transform = transforms.Compose(
             [
@@ -50,7 +45,9 @@ class Context:
                 ),
             ]
         )
-        self.image_search_model = models.resnet18(pretrained=True)
+        self.image_search_model = models.resnet18(
+            weights=models.ResNet18_Weights.DEFAULT
+        )
 
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.text_search_model, self.text_search_preprocess = clip.load(
@@ -58,10 +55,10 @@ class Context:
         )
 
     async def init_db(self) -> None:
-        await self.sqlite.connect()
+        await self.pg.connect()
 
     async def dispose_db(self) -> None:
-        await self.sqlite.disconnect()
+        await self.pg.disconnect()
 
     def init_scheduler(self, func) -> None:
         self.scheduler = AsyncIOScheduler()
@@ -70,22 +67,22 @@ class Context:
         )
 
 
-def save_image_search_tensors(ctx: Context, img: Image, img_id: str) -> None:
+def compute_image_search_tensors(ctx: Context, img: Image) -> None:
     transformed_image = ctx.image_search_transform(img).unsqueeze(0)
     with torch.no_grad():
         features = ctx.image_search_model(transformed_image)
 
-    torch.save(features.squeeze(0), f"{ctx.img_tensors_dir}/{img_id}.pt")
+    return features.squeeze(0)
 
 
-def save_text_search_tensors(ctx: Context, img: Image, img_id: str) -> None:
+def compute_text_search_tensors(ctx: Context, img: Image) -> None:
     transformed_image = (
         ctx.text_search_preprocess(img).unsqueeze(0).to(ctx.device)
     )
     with torch.no_grad():
         features = ctx.text_search_model.encode_image(transformed_image)
 
-    torch.save(features, f"{ctx.text_tensors_dir}/{img_id}.pt")
+    return features.squeeze(0)
 
 
 async def process_image(ctx: Context, image: entities.Image) -> None:
@@ -96,8 +93,10 @@ async def process_image(ctx: Context, image: entities.Image) -> None:
         mean_hsv = compute_mean_color(processed_img, ColorModel.HSV)
         mean_lab = compute_mean_color(processed_img, ColorModel.LAB)
 
-        save_image_search_tensors(ctx, processed_img.convert("RGB"), image.id)
-        save_text_search_tensors(ctx, processed_img, image.id)
+        image_embeddings = compute_image_search_tensors(
+            ctx, processed_img.convert("RGB")
+        )
+        text_embeddings = compute_text_search_tensors(ctx, processed_img)
 
         processed_img.save(f"{ctx.config.img_dir}/{image.id}.png")
 
@@ -106,34 +105,32 @@ async def process_image(ctx: Context, image: entities.Image) -> None:
             id=image.id,
             url=image.url,
             hash=image.hash,
-            mean_h=mean_hsv[0],
-            mean_s=mean_hsv[1],
-            mean_v=mean_hsv[2],
-            mean_l=mean_lab[0],
-            mean_a=mean_lab[1],
-            mean_b=mean_lab[2],
-            processed=1,
+            hsv=mean_hsv,
+            lab=mean_lab,
+            image_embeddings=np.array2string(
+                image_embeddings.numpy(), separator=", "
+            ),
+            text_embeddings=np.array2string(
+                text_embeddings.numpy(), separator=", "
+            ),
+            processed=True,
         ),
         fields=[
             "processed",
-            "mean_h",
-            "mean_s",
-            "mean_v",
-            "mean_l",
-            "mean_a",
-            "mean_b",
+            "hsv",
+            "lab",
+            "image_embeddings",
+            "text_embeddings",
         ],
     )
+
     logger.info(
         f"Processed image: {ctx.orig_img_dir}/{image.id}.{ctx.orig_img_ext}"
     )
 
 
 async def process_images(ctx: Context) -> None:
-    images: List[entities.Image] = await ctx.image_repo.get_many(
-        field="processed", value=0
-    )
-    for image in images:
+    for image in await ctx.image_repo.get_many(field="processed", value=False):
         await process_image(ctx, image)
 
 
@@ -143,8 +140,6 @@ async def main():
     ctx.text_search_model.eval()
 
     os.makedirs(ctx.config.img_dir, exist_ok=True)
-    os.makedirs(ctx.config.img_search_tensors_dir, exist_ok=True)
-    os.makedirs(ctx.config.text_search_tensors_dir, exist_ok=True)
 
     configure_logging()
     await ctx.init_db()

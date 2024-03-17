@@ -31,20 +31,22 @@
         }
     },
     "scraper": {
-        "img_dir": "scraper/img",
+        "img_dir": "img",
         "total_pages": 10000,
         "max_image_size_kb": 1000,
         "img_save_extension": "jpeg"
     },
-    "sqlite_creds": {
-        "driver": "sqlite+aiosqlite",
-        "db_name": "db/images"
+    "pg_creds": {
+        "driver": "postgres",
+        "username": "postgres",
+        "password": "1234",
+        "url": "isat-cv-db",
+        "port": "5432",
+        "db_name": "isat_cv_db"
     },
     "img_processer": {
-        "interval": 30,
-        "img_dir": "processed_img",
-        "img_search_tensors_dir": "img_search_tensors",
-        "text_search_tensors_dir": "text_search_tensors"
+        "interval": 10,
+        "img_dir": "processed_img"
     },
     "img_blender": {
         "pyramids_levels": 3

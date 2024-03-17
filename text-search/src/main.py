@@ -25,11 +25,7 @@ logger = logging.getLogger("app")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "http://0.0.0.0:5173",
-    ],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -47,4 +43,4 @@ async def text_search(query: str, amount: int = 10) -> List[str]:
 
 @app.get("/", summary="Check availability")
 def healthcheck():
-    return "Image search is running!"
+    return "Text search is running!"

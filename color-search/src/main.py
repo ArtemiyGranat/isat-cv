@@ -7,8 +7,8 @@ from fastapi import FastAPI, File, HTTPException, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
 from utils import similar_color
 
-from shared.color import ColorModel
 from shared.logger import configure_logging
+from shared.models import ColorModel
 
 
 @asynccontextmanager

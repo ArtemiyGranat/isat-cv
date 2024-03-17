@@ -16,6 +16,6 @@ wheels/
 
 img/
 processed_img/
-db/
-img_search_tensors/
-text_search_tensors/
+db/data
+
+TODO.md

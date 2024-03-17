@@ -1,20 +1,18 @@
-from typing import ClassVar
+from typing import ClassVar, List
+from uuid import UUID
 
 from shared.db import Entity
 
 
-# TODO: Nested models? HsvData/LabData
 class Image(Entity):
-    id: str
+    id: UUID
     url: str
     hash: str
-    mean_h: float
-    mean_s: float
-    mean_v: float
-    mean_l: float
-    mean_a: float
-    mean_b: float
-    processed: int  # bool but SQLite moment
+    hsv: List[float] | None = None
+    lab: List[float] | None = None
+    image_embeddings: str | None = None
+    text_embeddings: str | None = None
+    processed: bool
 
     _pk: ClassVar[str] = "id"
     _table_name: ClassVar[str] = "images"

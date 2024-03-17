@@ -1,15 +1,9 @@
-from enum import Enum
-
 import numpy as np
 from PIL import Image
 from skimage import color
 
 from shared.entities import Image as ImageEntity
-
-
-class ColorModel(int, Enum):
-    LAB = 0
-    HSV = 1
+from shared.models import ColorModel
 
 
 def compute_mean_color(image: Image, color_model: ColorModel):
@@ -30,9 +24,9 @@ def compute_mean_color(image: Image, color_model: ColorModel):
 
 def mean_color(image: ImageEntity, color_model: ColorModel):
     if color_model == ColorModel.LAB:
-        return (image.mean_l, image.mean_a, image.mean_b)
+        return image.lab
     else:
-        return (image.mean_h, image.mean_s, image.mean_v)
+        return image.hsv
 
 
 def color_distance(target_color, other_color, color_model: ColorModel):

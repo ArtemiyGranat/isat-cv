@@ -76,13 +76,7 @@ async def process_image(url: str, info: ScraperInfo) -> None:
             id=id,
             url=url,
             hash=hash_value,
-            mean_h=0,
-            mean_s=0,
-            mean_v=0,
-            mean_l=0,
-            mean_a=0,
-            mean_b=0,
-            processed=0,
+            processed=False,
         )
     )
     info.images_scraped += 1

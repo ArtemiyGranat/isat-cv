@@ -2,11 +2,11 @@ from cs_context import ctx
 from PIL import Image
 
 from shared.color import (
-    ColorModel,
     color_distance,
     compute_mean_color,
     mean_color,
 )
+from shared.models import ColorModel
 
 
 async def similar_color(

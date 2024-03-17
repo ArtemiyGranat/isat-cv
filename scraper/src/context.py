@@ -3,7 +3,7 @@ import os
 import httpx
 from databases import Database
 
-from shared.db import SqliteRepository, gen_sqlite_address
+from shared.db import PgRepository, gen_db_address
 from shared.entities import Image
 from shared.resources import CONFIG_PATH, SharedResources
 
@@ -19,17 +19,15 @@ class Context:
 
         os.makedirs(self.config.img_dir, exist_ok=True)
 
-        self.sqlite = Database(
-            gen_sqlite_address(shared_resources.sqlite_creds)
-        )
         self.http_client = httpx.AsyncClient()
-        self.image_repo = SqliteRepository(self.sqlite, Image)
+        self.pg = Database(gen_db_address(shared_resources.pg_creds))
+        self.image_repo = PgRepository(self.pg, Image)
 
     async def init_db(self) -> None:
-        await self.sqlite.connect()
+        await self.pg.connect()
 
     async def dispose_db(self) -> None:
-        await self.sqlite.disconnect()
+        await self.pg.disconnect()
 
     async def close_client(self) -> None:
         await self.http_client.aclose()

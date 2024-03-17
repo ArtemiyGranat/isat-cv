@@ -14,7 +14,6 @@ from shared.logger import configure_logging
 async def lifespan(_: FastAPI):
     configure_logging()
     await ctx.init_db()
-    await ctx.image_repo.create_table()
     try:
         yield
     finally:
@@ -27,11 +26,7 @@ logger = logging.getLogger("app")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:8000",
-        "http://127.0.0.1:8000",
-        "http://0.0.0.0:8000",
-    ],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
