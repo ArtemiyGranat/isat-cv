@@ -1,4 +1,3 @@
-import numpy as np
 import torch
 from is_context import ctx
 from PIL import Image
@@ -21,7 +20,7 @@ async def similar_images(target_file, amount=10):
         image.url
         for image in await ctx.image_repo.get_nearest_embeddings(
             "image_embeddings",
-            np.array2string(target_features, separator=", "),
+            target_features,
             Distance.COSINE_SIMILARITY,
             amount,
             field="processed",

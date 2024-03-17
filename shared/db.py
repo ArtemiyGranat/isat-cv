@@ -1,6 +1,7 @@
 import logging
 from typing import ClassVar, List, Optional, Tuple, Type
 
+import numpy as np
 from asyncpg.exceptions import UniqueViolationError
 from databases import Database
 from pydantic import BaseModel, TypeAdapter
@@ -131,6 +132,7 @@ class PgRepository(AbstractRepository):
         field=None,
         value=None,
     ):
+        embedding = np.array2string(embedding, separator=", ")
         query = f"SELECT * FROM {self._table_name}"
 
         if field is not None:

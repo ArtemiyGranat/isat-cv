@@ -1,5 +1,4 @@
 import clip
-import numpy as np
 from ts_context import ctx
 
 from shared.models import Distance
@@ -13,7 +12,7 @@ async def find_similar_images(query: str, amount: int = 10):
         image.url
         for image in await ctx.image_repo.get_nearest_embeddings(
             "text_embeddings",
-            np.array2string(text_features, separator=", "),
+            text_features,
             Distance.COSINE_SIMILARITY,
             amount,
             field="processed",
