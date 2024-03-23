@@ -2,9 +2,9 @@ import logging
 from contextlib import asynccontextmanager
 from typing import List
 
+from context import ctx
 from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
-from ts_context import ctx
 from utils import find_similar_images
 
 from shared.logger import configure_logging

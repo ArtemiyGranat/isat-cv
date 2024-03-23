@@ -2,7 +2,7 @@ import logging
 from contextlib import asynccontextmanager
 from typing import List
 
-from cs_context import ctx
+from context import ctx
 from fastapi import FastAPI, File, HTTPException, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
 from utils import similar_color
